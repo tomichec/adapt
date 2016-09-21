@@ -1,0 +1,193 @@
+\documentclass[twoside,a4paper,12pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{color}
+
+\usepackage[left=3cm,right=3cm,top=2cm,bottom=2cm,asymmetric]{geometry}
+
+\newcommand{\notcolor}{blue}
+\newcommand{\note}[1]{{\color{red}\newline(#1)}}
+\newcommand{\QM}{{\color{red}(?)}}
+
+\newcommand{\+}[2]{\newcommand#1{{\color{\notcolor}#2}}}
+\newcommand{\1}[2]{\newcommand{#1}[1]{{\color{\notcolor}#2}}}
+\newcommand{\2}[2]{\newcommand{#1}[2]{{\color{\notcolor}#2}}}
+
+\newcommand{\mat}{\boldsymbol }
+
+\+{\dd}{\mathrm{d}}
+\+{\uuh}{u^h}
+\+{\ggh}{g^h}
+\+{\vvh}{v^h}
+\+{\wwh}{w^h}
+\+{\nel}{N}
+\+{\young}{E}                   % young's modulus
+\+{\area}{A}                    % cross-section area
+
+\+{\shape}{\Phi}                % elementary shape (basis) function
+\+{\stm}{\mat K}                % stiffness matrix
+\1{\stme}{\mat K_{#1}}       % stiffness matrix entry
+
+\+{\estm}{\mat K^e}               % element stiffness matrix
+\1{\estme}{\mat K^e_{#1}}       % element stiffness matrix entry
+
+\+{\vdspl}{\vec d}
+\+{\vfrc}{\vec F}
+
+\begin{document}
+
+\section{Statement of the system}
+
+This program aims to use finite elements methods to solve the boundary
+value problem
+
+\begin{align}
+  \young(x) \area(x) u_{,xx} + f(x) = 0, \label{eq:bvp}
+  &&u(L) = g, u_{,x}(0) = -h,
+\end{align}
+where $L$ is the length, $\young(x)$ is Young's modulus and $\area$ is
+the cross section area, $u(x)$ is a deformation of the of the object
+in consideration, and shorthand notation for a derivative is written
+after a coma in a subscript, e.g. $u_{,x} = \dd u /\dd x$.  The
+function $f(x)$ represents the body forces. The $g$ and $h$ are
+essential and natural boundary conditions respectively.
+
+Let $u(x)$ be a solution of system \eqref{eq:bvp} then we may write
+%
+\begin{align}
+  0 = \int_0^L (\young(x) \area(x) u_{,xx} + f(x)) w(x) \dd x 
+\end{align}
+and $w(x)$ is a chosen \emph{weighting (test) function} that satisfies a
+criteria $w(L)=0$.
+%
+Using integration by parts we get
+%
+\begin{align}
+  \int_0^L \young(x) \area(x) u_{,xx} w(x) \dd x 
+  -\int_0^L f(x) w(x) \dd x  =
+   \int_0^L u_{,x} (\young(x) \area(x) w(x))_{,x} \dd x -\nonumber \\ -
+  (u_{,x} (\young(x) \area(x)  w(x))\big|_0^L -
+  \int_0^L f(x) w(x) \dd x =  
+  %
+  \int_0^L u_{,x} (\young(x) \area(x) w(x))_{,x} \dd x -\nonumber \\ -
+  (u_{,x}(L) (\young(L) \area(L)  w(L) -
+  u_{,x}(0) \young(0) \area(0)  w(0)) 
+  -\int_0^L f(x) w(x) \dd x = 0
+\end{align}
+%
+and using the boundary values and the property of the weighting
+function, the previous simplifies as
+%
+\begin{align}
+  \int_0^L u_{,x} (\young(x) \area(x) w(x))_{,x} \dd x =  
+  \int_0^L f(x) w(x) \dd x + h \young(0) \area(0)  w(0)
+  \label{eq:weak-exact}
+\end{align}
+%
+this method is called a \emph{weak (variational)}.
+
+The solution of this system can be found by strong (classical) method
+or weak (variational) method. The equivalence with the \emph{strong
+  (classical)} method goes under a name \emph{fundamental lemma} which we will not show in here.
+
+To solve the system numerically we will use Galerkin approximation
+method. This method uses \eqref{eq:weak-exact} and provides an
+approximation of the boundary value problem \eqref{eq:bvp} as
+%
+\begin{align}
+a(\young\area\wwh,\uuh) = (\wwh,f) + h \young(0)\area(0)\wwh(0) \label{eq:weak-approx}
+\end{align}
+%
+where we define the operators $a(y,z) = \int_0^L y_{,x} z_{,x} \dd x$
+and $(y,z) = \int_0^L y z \dd x$ for arbitrary functions $y = y(x)$
+and $z= z(x)$.
+
+We construct the function
+\begin{align}
+  \uuh  = \vvh + \ggh \label{eq:galerkin-construc}
+\end{align}
+%
+where $\ggh$ is given by satisfying the essential boundary condition
+$\ggh(L) = g$ and $\vvh$ corresponds to the displacement. We
+substitute \eqref{eq:galerkin-construc} into \eqref{eq:weak-approx} to
+obtain
+%
+\begin{align}
+  a(\young\area\wwh,\vvh) = (\wwh, f) + \young(0)\area(0)\wwh(0)h - 
+  a(\young\area\wwh,\ggh)\label{eq:galerkin}
+\end{align}
+%
+the weighting function can be defined as
+%
+\begin{align}
+  \wwh = \sum_{i=0}^{\nel-1} c_i \shape_i \label{eq:wwh-sum}
+\end{align}
+%
+where $\shape_i$ is so-called a \emph{basis (shape) function} for
+element $i$. Similarly, we define
+%
+\begin{align}
+  \vvh = \sum_{i=0}^{\nel-1} d_i \shape_i \label{eq:vvh-sum}
+\end{align}
+where $c_i, d_i$ are constants.
+
+After substitution of \eqref{eq:wwh-sum} and \eqref{eq:vvh-sum} into
+the \eqref{eq:galerkin} and using the bilinearity property of
+operators $a(\cdot,\cdot)$ and $(\cdot,\cdot)$ we get an expression
+%
+\note{Is it for a single element? What about the integration limits
+  and $c_i$?}
+%
+\begin{align}
+  \sum_{j=0}^{\nel-1} a(\young\area\shape_i, \shape_j) d_j = (\shape_i, f) + \young(0)\area(0)\shape_i(0) h - a(\young\area\shape_i,\shape_\nel)g. \label{eq:galerkin-row}
+\end{align}
+%
+Using a notation
+%
+\begin{align}
+  \stme{ij} =& a(\young\area\shape_i,\shape_j) = \int_0^L \young(x)\area(x)\shape_{i,x}(x),\shape_{j,x}(x) \dd x \\
+  F_i =& (\shape_i,f) + \young(0)\area(0)\shape_i(0) h - a(\young\area\shape_i,\shape_{\nel}) g .
+\end{align}
+Then equation \eqref{eq:galerkin-row} can be rewritten as
+%
+\begin{align}
+  \sum_{j=0}^{\nel-1} \stme{ij} d_j = F_i
+\end{align}
+or more concisely as
+\begin{align}
+\stm \vdspl = \vfrc
+\end{align}
+where $\stm$ is a \emph{stiffness matrix}, $\vdspl$ is a
+\emph{displacement vector} and $\vfrc$ is a \emph{force vector}.
+
+\section{Problem Statement}
+
+We define the basis function and find its derivative for each element
+$i$ of $\nel$ elements. In the middle elements we get
+\begin{align}
+\shape_i(x) =& \frac{x-x_{i-1}}{h_{i-1}}, &\shape_{i,x}(x) =& \frac{1}{h_{i-1}},&&\text{for } x_{i-1} \leq x \leq x_i \\
+\shape_i(x) =& \frac{x_{i+1}-x}{h_{i}},  &\shape_{i,x}(x) =& -\frac{1}{h_{i}}, &&\text{for }x_i \leq x \leq x_{i+1} \\
+\shape_i(0) =& 0,                       &\shape_{i,x}(0) =& 0,                &&\text{elsewhere.}
+\end{align}
+%
+whereas for the boundary node we have
+%
+\begin{align}
+\shape_0(x) =& \frac{x_1-x}{h_{0}},             &\shape_0(x) =& -\frac{1}{h_{0}},                          &&\text{for } x_0 \leq x \leq x_{1} \\
+\shape_\nel(x) =& \frac{x-x_{\nel-1}}{h_{\nel-1}},&\shape_\nel(x) =& \frac{1}{h_{\nel-1}},             &&\text{for } x_{\nel-1} \leq x \leq x_\nel .
+\end{align}
+
+Now we can write the stiffness matrix for a single element, i.e. in an
+interval interval $[x_{i-1}, x_i]$ (where $i = 1, \hdots, \nel$ ) as
+%
+\begin{align}
+\stme{ij} = a(\young\area\shape_i,\shape_j) = \int_{x_{i-1}}^{x_i}
+\end{align}
+
+
+
+
+\end{document}
