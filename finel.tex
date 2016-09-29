@@ -4,9 +4,72 @@
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
 \usepackage{amsmath}
-\usepackage{color}
+\usepackage{graphicx}
+\usepackage{xcolor}
 
 \usepackage[left=3cm,right=3cm,top=2cm,bottom=2cm,asymmetric]{geometry}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% hyperlinks in the document
+\usepackage{hyperref}
+% https://tex.stackexchange.com/questions/823/remove-ugly-borders-around-clickable-cross-references-and-hyperlinks
+\hypersetup{
+    colorlinks,
+    linkcolor={red!80!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% https://tex.stackexchange.com/questions/135649/make-citemy-reference-show-name-and-year
+\usepackage{natbib}             % citations including name and year
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% code listings
+\usepackage{listings}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.3,0.3,0.3}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.8,0.8,0.8}
+\definecolor{BLUE}{rgb}{1.,1.,0.}
+ 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{black!10},   
+    % commentstyle=\color{black!80},
+    commentstyle=\color{codegreen},
+    keywordstyle={\bf\ttfamily\color{black}},
+    stringstyle={\it\ttfamily\color{black!70}},
+    numberstyle=\scriptsize\color{black!70},
+    % basicstyle=\footnotesize,
+    % breakatwhitespace=false,         
+    % breaklines=true,                 
+    captionpos=t,                    
+    basicstyle=\scriptsize\ttfamily\color{black!90},
+    % keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,   
+    stepnumber=5,
+    firstnumber=1,
+    numberfirstline=false,
+    belowcaptionskip=-1em,
+    % showspaces=false,                
+    % showstringspaces=false,
+    % showtabs=false,                  
+    % tabsize=2
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+
+\newcommand{\prog}[1]{\textrm{#1}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\newcommand{\python}{\prog{Python}}
+
+\newcommand{\ie}{{\it i.e.\ }}
 
 \newcommand{\notcolor}{blue}
 \newcommand{\note}[1]{{\color{red}\newline(#1)}}
@@ -29,7 +92,7 @@
 
 \+{\shape}{\Phi}                % elementary shape (basis) function
 \+{\stm}{\mat K}                % stiffness matrix
-\1{\stme}{\mat K_{#1}}       % stiffness matrix entry
+\1{\stme}{K_{#1}}       % stiffness matrix entry
 
 \+{\estm}{\mat K^e}               % element stiffness matrix
 \1{\estme}{\mat K^e_{#1}}       % element stiffness matrix entry
@@ -43,7 +106,7 @@
 
 This program aims to use finite elements methods to solve the boundary
 value problem
-
+%
 \begin{align}
   \young(x) \area(x) u_{,xx} + f(x) = 0, \label{eq:bvp}
   &&u(L) = g, u_{,x}(0) = -h,
@@ -148,7 +211,7 @@ operators $a(\cdot,\cdot)$ and $(\cdot,\cdot)$ we get an expression
 Using a notation
 %
 \begin{align}
-  \stme{ij} =& a(\young\area\shape_i,\shape_j) = \int_0^L \young(x)\area(x)\shape_{i,x}(x),\shape_{j,x}(x) \dd x \\
+  \stme{ij} =& a(\young\area\shape_i,\shape_j) = \int_0^L \young(x)\area(x)\shape_{i,x}(x),\shape_{j,x}(x) \dd x \label{eq:stme} \\ 
   F_i =& (\shape_i,f) + \young(0)\area(0)\shape_i(0) h - a(\young\area\shape_i,\shape_{\nel}) g .
 \end{align}
 Then equation \eqref{eq:galerkin-row} can be rewritten as
@@ -165,6 +228,9 @@ where $\stm$ is a \emph{stiffness matrix}, $\vdspl$ is a
 
 \section{Problem Statement}
 
+Consider boundary value problem \eqref{eq:bvp} where $g=h =0$ and
+$f(x) = q x$, where $q=-1$, $L=1$, $A(x) = E(x) = 1$.
+
 We define the basis function and find its derivative for each element
 $i$ of $\nel$ elements. In the middle elements we get
 \begin{align}
@@ -180,12 +246,56 @@ whereas for the boundary node we have
 \shape_\nel(x) =& \frac{x-x_{\nel-1}}{h_{\nel-1}},&\shape_\nel(x) =& \frac{1}{h_{\nel-1}},             &&\text{for } x_{\nel-1} \leq x \leq x_\nel .
 \end{align}
 
-Now we can write the stiffness matrix for a single element, i.e. in an
-interval interval $[x_{i-1}, x_i]$ (where $i = 1, \hdots, \nel$ ) as
+Then we compute the values for the stiffness matrix using numerical
+integration. In \python\ this can be done using \code{scipy.integrate}
+function with a \code{integrate.quad(lambda x:f(x),0,L)} for a
+quadrature rule. The output array contains a tupple containing the
+value of integral and the maximum error of the result.
+
+\lstinputlisting[language=python, style=mystyle, breaklines=true]{galerkin.py}
+
+The results are depicted in \figref{fig:displacement}.
+
+% \section{Results}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1.0\textwidth]{displacement.eps}
+  \caption{Dependence of the displacement on the position (x-axis).}
+  \label{fig:displacement}
+\end{figure}
+
+
+
+% \note{----------work in progress----------}
+
+% The integral defining the stiffness matrix in \label{eq:stme} can be
+% now split into piecewise as
+% %
+% \begin{align}
+%   \stme{ij} = \int_0^L \young(x)\area(x)\shape_{i,x}(x) \shape_{j,x}(x) \dd x 
+%   =\int_{x_{i-1}}^{x_{i+1}} \young(x)\area(x)\shape_{i,x}(x) \shape_{j,x}(x) \dd x=\\
+%   =\int_{x_{i-1}}^{x_{i}} \young(x)\area(x)\shape_{i,x}(x) \shape_{j,x}(x) \dd x +
+%   \int_{x_{i}}^{x_{i+1}} \young(x)\area(x)\shape_{i,x}(x) \shape_{j,x}(x) \dd x. \label{eq:stme-piecewise}
+% \end{align}
+
 %
-\begin{align}
-\stme{ij} = a(\young\area\shape_i,\shape_j) = \int_{x_{i-1}}^{x_i}
-\end{align}
+% Each term in \eqref{eq:stme-piecewise} can be interpreted as a
+% stiffness matrix of a single element
+% %
+% \begin{align}
+%  \estme{ij} =  \int_{x_{i}}^{x_{i+1}} \young(x)\area(x)\shape_{i,x}(x) \shape_{j,x}(x) \dd x
+% \end{align}
+% \note{it might need to change the indexes}
+
+% %
+% The definition can be further simplified depending on the relation
+% between the $i$ and $j$ as
+% %
+
+
+% Now we can write the stiffness matrix for a single element,  in an
+%  interval $[x_{i-1}, x_i]$ (where $i = 1, \hdots, \nel$ ) as
 
 
 
