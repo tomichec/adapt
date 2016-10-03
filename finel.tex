@@ -6,6 +6,7 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{xcolor}
+\usepackage{booktabs}
 
 \usepackage[left=3cm,right=3cm,top=2cm,bottom=2cm,asymmetric]{geometry}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -61,13 +62,19 @@
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% escape underscore environment
+% https://tex.stackexchange.com/questions/20890/define-an-escape-underscore-environment
+\usepackage{url}
+\DeclareUrlCommand\code{\urlstyle{tt}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newcommand{\figref}[1]{Figure~\ref{#1}}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
 
-\newcommand{\prog}[1]{\textrm{#1}}
-\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\prog}[1]{\textsf{#1}}
 
 \newcommand{\python}{\prog{Python}}
+\newcommand{\lapack}{\prog{LAPACK}}
 
 \newcommand{\ie}{{\it i.e.\ }}
 
@@ -221,15 +228,18 @@ Then equation \eqref{eq:galerkin-row} can be rewritten as
 \end{align}
 or more concisely as
 \begin{align}
-\stm \vdspl = \vfrc
+\stm \vdspl = \vfrc \label{eq:concise-eq}
 \end{align}
 where $\stm$ is a \emph{stiffness matrix}, $\vdspl$ is a
 \emph{displacement vector} and $\vfrc$ is a \emph{force vector}.
 
-\section{Problem Statement}
+\section{First problem}
 
-Consider boundary value problem \eqref{eq:bvp} where $g=h =0$ and
-$f(x) = q x$, where $q=-1$, $L=1$, $A(x) = E(x) = 1$.
+Consider boundary value problem \eqref{eq:bvp} where $g=h =0$ with a
+constant force as $f(x) = q$, where $q=-1$, length of the piece is
+$L=1$, cross-section area and young modulus are $A(x) = E(x) = 1$.
+
+\subsection{Shape function}
 
 We define the basis function and find its derivative for each element
 $i$ of $\nel$ elements. In the middle elements we get
@@ -246,25 +256,102 @@ whereas for the boundary node we have
 \shape_\nel(x) =& \frac{x-x_{\nel-1}}{h_{\nel-1}},&\shape_\nel(x) =& \frac{1}{h_{\nel-1}},             &&\text{for } x_{\nel-1} \leq x \leq x_\nel .
 \end{align}
 
+\subsection{\python\ Implementation}
+
 Then we compute the values for the stiffness matrix using numerical
 integration. In \python\ this can be done using \code{scipy.integrate}
-function with a \code{integrate.quad(lambda x:f(x),0,L)} for a
-quadrature rule. The output array contains a tupple containing the
-value of integral and the maximum error of the result.
+function with a \code{integrate.quad} for a quadrature rule. The
+output array contains a tupple containing the value of integral and
+the maximum error of the result.
+
+At first, we have integrated from the limits of $0$ all the way
+thorough the length of the element $L$. This caused a problem when the
+number of elements were greater than $16$. This was due to the fact
+that the shape function is defined piecewise, and the results of
+numerical integration were not sufficiently accurate. The way to
+address this issue was to integrate only in the immediate surroundings
+of each point, where the shape functions are actually
+non-zero. However, this raised another issue, because the shape
+functions were defined even out of the interval $[0,1]$. To avoid
+integration in this area, we have hard-coded constrains directly to
+the shape function. This could be obviously corrected, but because
+the stiffness matrix will be computed element-wise in future version
+of this code, it was neglected at this stage.
+
+After constructing element stiffness matrix and the force vector, we
+have proceed to the solution of the system \eqref{eq:concise-eq}. In
+the first attempt, we have found the displacement vector by inverting
+the stiffness matrix using \code{np.linalg.inv} function (we imported
+\code{numpy} library as \code{np}). So in the current version, we
+solve the system using \code{np.linalg.solve} function, which uses
+\lapack\ routine \code{_gesv}. A performance benchmark has shown
+that for a $5000$ elements the solution of the system using the
+\code{np.linalg.solve} is about four times than using matrix inversion
+(\ie $2.5$ seconds compared to $8.6$ seconds on Intel Core i5-3470 CPU
+at a clock frequency of 3.20GHz).
+%
+\note{it would be interesting to see what order of $N$ is the computational cost}
+
+The code for the computation is shown as follows.
 
 \lstinputlisting[language=python, style=mystyle, breaklines=true]{galerkin.py}
 
-The results are depicted in \figref{fig:displacement}.
 
-% \section{Results}
+\subsection{Results}
+
+The results are depicted in \figref{fig:displacement}. The simulation
+was done for eight free elements. The material is fixed at the point
+$x=1$ at a position $0$. The solution is exact at the nods.
 
 \begin{figure}
   \centering
   \includegraphics[width=1.0\textwidth]{displacement.eps}
-  \caption{Dependence of the displacement on the position (x-axis).}
+  \caption{Dependence of the displacement on the position (x-axis) for
+    a computation of eight degrees of freedom. Numerical results at
+    the nodes (red dots) are linearly interpolated (red lines) and
+    compared to the exact solution (blue line).}
   \label{fig:displacement}
 \end{figure}
 
+The output of the program follows.
+%
+The first part corresponds to the computational cost (in seconds)
+spend in the construction of force vector, stiffness matrix and on the
+solution of the system. The values are very small for this
+
+Further, the stiffness matrix and the force vector are printed and
+finally the solution for the displacement is shown both as a numerical
+result and exact solution obtained analytically. As the numerical
+results are exact in this case, also the norm of the difference
+between the numerical and analytical results is zero.
+
+\tabref{tab:comp-cost} shows the computational results for the
+simulation using $5000$ elements. The remaining parameters are
+identical to the code presented. As seen in this example, the
+construction of the stiffness matrix is the most time consuming task
+despite the fact, that we do not compute the zero elements of the
+matrix. The relatively high cost is caused due to numerical
+integration.
+
+In the following section we will focus on the computation of the
+stiffness matrix element-wise.
+
+\begin{table}
+  \centering
+  \label{tab:comp-cost}
+\caption{Computational cost of the solving of the system.}
+\begin{tabular}{ll}
+  \toprule
+  Task & cost (seconds)\\
+  \midrule
+Constructing stiffness matrix: & 7.161638498306274   \\
+Constructing force vector:     & 0.33005428314208984 \\
+  Solving the system:            & 2.460254430770874   \\
+  \bottomrule
+\end{tabular}
+\end{table}
+
+\lstinputlisting[breaklines=true]{galerkin.out}
 
 
 % \note{----------work in progress----------}
