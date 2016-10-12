@@ -45,11 +45,14 @@ def vec_force(nel):
 
     return F
 
-def sol_exact(X):
-    '''returns vector of exact solution'''
-    U = np.zeros((X.size))
-    for i in range(X.size):
-        U[i] = dspl_exact(X[i])
+def sol_exact(nel):
+    '''returns vector of exact solution of the displacement'''
+    U = np.matrix(np.zeros((nel,1)))
+
+    x = 0.0
+    for i in range(nel):
+        U[i] = dspl_exact(x)
+        x += dx
 
     return U
 
@@ -60,6 +63,19 @@ def eucl_norm(u,v):
         norm += (a-b)**2
     return np.sqrt(norm)
 
+def sol_num(nel):
+    '''returns vector of numerical solution of the displacement'''
+
+    # Construct stiffness matrix
+    K = mat_stiff(nel)
+
+    # Construct the force vector
+    F = vec_force(nel)
+
+    # find the displacement 
+    return np.linalg.solve(K,F)    # this uses LAPACK routine _gesv
+
+
 if __name__ == '__main__':
     
     nel = 8                           # number of elements
@@ -67,32 +83,13 @@ if __name__ == '__main__':
     dx  = L/nel                         # space increment (uniform)
     X   = np.arange(0.0,L,dx)           # vector of position of free elements
 
-    # Construct stiffness matrix
-    print('Constructing stiffness matrix:',end='\t')
-    start = time.time()
-    K = mat_stiff(nel)
-    print(time.time()-start)
-
-    # Construct the force vector
-    print('Constructing force vector:',end='\t')
-    start = time.time()
-    F = vec_force(nel)
-    print(time.time()-start)        
-
-    # find the displacement 
-    print('Solving the system:',end='\t')
-    start = time.time()
-    # d = np.linalg.inv(K)*F    # this invert the stiffness matrix 
-    d = np.linalg.solve(K,F)    # this uses LAPACK routine _gesv
-    print(time.time()-start)
-    
+    # find numerical solution
+    d = sol_num(nel)
     # find the exact solution
-    D = sol_exact(X)
+    D = sol_exact(nel)
     
     # print the results
     if DEBUG:
-        print("\nStiffness matrix K:\n",K)
-        print("\nForce vector F:\n",F)
         print("\nDisplacement (numerical):\n",d)
         print("\nExact displacement (computed analytically):\n",D)
         print("\nDifference between exact and numerical:\n",D-d)
