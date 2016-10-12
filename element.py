@@ -15,7 +15,7 @@ def mat_stiff(nel):
     '''constructing the global stiffness matrix'''
 
     # assamble local stiffness matrix (this was computed by hand)
-    k = (1/dx)*np.matrix([[1,-1],[-1,1]])
+    k = (1/dx)*np.array([[1,-1],[-1,1]])
 
     K = np.zeros((nel,nel))
     # global stiffness matrix
@@ -34,9 +34,9 @@ def vec_force(nel):
     q   = -1.                         # constant of the body forces
 
     # local forces
-    f = dx/6*np.matrix([[2,1],[1,2]])*np.matrix([[q],[q]])
+    f = (dx/6)*np.dot(np.array([[2,1],[1,2]]),np.array([[q],[q]]))
 
-    F = np.matrix(np.zeros((nel,1)))
+    F = np.zeros((nel,1))
     for e in range(nel-1):
         F[e,0] += f[0,0]
         F[e+1,0] += f[1,0]
@@ -45,32 +45,14 @@ def vec_force(nel):
 
     return F
 
-def sol_exact(nel):
-    '''returns vector of exact solution of the displacement'''
-    U = np.matrix(np.zeros((nel,1)))
-
-    x = 0.0
-    for i in range(nel):
-        U[i] = dspl_exact(x)
-        x += dx
-
-    return U
-
-def eucl_norm(u,v):
-    '''returns euclidian norm of vectors u and v'''
-    norm = 0
-    for a,b in zip(u,v):
-        norm += (a-b)**2
-    return np.sqrt(norm)
-
-def sol_num(nel):
+def sol_num(X):
     '''returns vector of numerical solution of the displacement'''
 
     # Construct stiffness matrix
-    K = mat_stiff(nel)
+    K = mat_stiff(X.size)
 
     # Construct the force vector
-    F = vec_force(nel)
+    F = vec_force(X.size)
 
     # find the displacement 
     return np.linalg.solve(K,F)    # this uses LAPACK routine _gesv
@@ -84,29 +66,28 @@ if __name__ == '__main__':
     X   = np.arange(0.0,L,dx)           # vector of position of free elements
 
     # find numerical solution
-    d = sol_num(nel)
+    d = sol_num(X).reshape(X.size)
     # find the exact solution
-    D = sol_exact(nel)
+    D = dspl_exact(X)
     
     # print the results
     if DEBUG:
         print("\nDisplacement (numerical):\n",d)
         print("\nExact displacement (computed analytically):\n",D)
         print("\nDifference between exact and numerical:\n",D-d)
-        print("\nNorm of the difference:",eucl_norm(D,d))
-    
+        print("\nNorm of the difference:",np.linalg.norm(D-d))
 
     # find exact solution
-    x = np.arange(0.0,L,dx/16)
-    exact = dspl_exact(x)
+    # x = np.arange(0.0,L,dx/16)
+    # exact = dspl_exact(x)
 
-    # plot the results
-    f=plt.figure(1)
-    plt.plot(x,exact,'b-')
-    plt.plot(X,d,'ro-')
-    plt.ylabel("displacement")
-    plt.xlabel("x")
-    if DEBUG:
-        plt.show()
-    else:
-        plt.savefig('displacement1.eps', format='eps', dpi=1000)
+    # # plot the results
+    # f=plt.figure(1)
+    # plt.plot(x,exact,'b-')
+    # plt.plot(X,d,'ro-')
+    # plt.ylabel("displacement")
+    # plt.xlabel("x")
+    # if DEBUG:
+    #     plt.show()
+    # else:
+    #     plt.savefig('displacement1.eps', format='eps', dpi=1000)
