@@ -1,14 +1,15 @@
 import numpy as np
 
 DEBUG = 1
+PLOT = 1
 
 import numpy as np
 import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 
-def dspl_exact(x,q=-1):
-    '''exact displacement for our problem'''
-    return q/2 *(1-x**2)
+def dspl_exact(x,q=-1, h=0, g=0):
+    '''exact displacement for constant forces q with the boundary value $-u_{,x}(0)=h$, $u(1)=g$'''
+    return q/2*(1-x**2) + (1-x)*h + g
 
 def forces(x):
     '''return constant body forces'''
@@ -18,7 +19,7 @@ def forces(x):
 def mat_stiff(X):
     '''constructing the global stiffness matrix'''
 
-    K = np.zeros((nel,nel))
+    K = np.zeros((X.size,X.size))
     # global stiffness matrix
     for e in range(X.size-1):
         # length of the element
@@ -31,7 +32,8 @@ def mat_stiff(X):
         K[e+1,e] += k[1,0]
         K[e+1,e+1] += k[1,1]
 
-    K[e+1,e+1] += k[1,1]
+    # boundary
+    K[e+1,e+1] += 1/(L-X[e+1])
 
     return K
 
@@ -51,7 +53,8 @@ def vec_force(X):
         F[e,0] += f[0,0]
         F[e+1,0] += f[1,0]
 
-    F[e+1,0] += f[0,0]
+    # boundary
+    F[e+1,0] += ((L-X[e+1])/2)*forces(X[e+1])
 
     return F
 
@@ -72,8 +75,10 @@ if __name__ == '__main__':
     
     nel = 8                           # number of elements
     L   = 1.0                         # length
-    dx  = L/nel                         # space increment (uniform)
-    X   = np.arange(0.0,L,dx)           # vector of position of free elements
+    dx  = L/nel                       # space increment (uniform)
+    X   = np.arange(0.0+dx,L,dx)**2 # vector of position of free elements
+    X   = 1-X[::-1]             # vector of position of free elements
+    X += -X[0]
 
     # find numerical solution
     d = sol_num(X).reshape(X.size)
@@ -91,13 +96,14 @@ if __name__ == '__main__':
     x = np.arange(0.0,L,dx/16)
     exact = dspl_exact(x)
 
-    # plot the results
-    f=plt.figure(1)
-    plt.plot(x,exact,'b-')
-    plt.plot(X,d,'ro-')
-    plt.ylabel("displacement")
-    plt.xlabel("x")
-    if DEBUG:
-        plt.show()
-    else:
-        plt.savefig('displacement1.eps', format='eps', dpi=1000)
+    if PLOT:
+        # plot the results
+        f=plt.figure(1)
+        plt.plot(x,exact,'b-')
+        plt.plot(X,d,'ro-')
+        plt.ylabel("displacement")
+        plt.xlabel("x")
+        if DEBUG:
+            plt.show()
+        else:
+            plt.savefig('displacement1.eps', format='eps', dpi=1000)
