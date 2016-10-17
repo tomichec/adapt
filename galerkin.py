@@ -1,7 +1,7 @@
 # Hughs p 36 Excercise 1
 
 # DEBUG flag: 1 to print extra information, 0 to avoid printing
-DEBUG = 1
+DEBUG = 0
 
 import numpy as np
 import scipy.integrate as integrate
@@ -40,7 +40,7 @@ def shape(A,x,dx):
     else:
         return 0
 
-def dspl_exact(x):
+def dspl_exact(x,q=-1):
     '''exact displacement for our problem'''
     return q/2 *(1-x**2)
 

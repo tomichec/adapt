@@ -74,6 +74,7 @@
 \newcommand{\prog}[1]{\textsf{#1}}
 
 \newcommand{\python}{\prog{Python}}
+\newcommand{\numpy}{\prog{NumPy}}
 \newcommand{\lapack}{\prog{LAPACK}}
 
 \newcommand{\ie}{{\it i.e.\ }}
@@ -106,6 +107,8 @@
 
 \+{\vdspl}{\vec d}
 \+{\vfrc}{\vec F}
+
+\1{\cO}{\mathcal{O}(#1)}
 
 \begin{document}
 
@@ -208,9 +211,6 @@ After substitution of \eqref{eq:wwh-sum} and \eqref{eq:vvh-sum} into
 the \eqref{eq:galerkin} and using the bilinearity property of
 operators $a(\cdot,\cdot)$ and $(\cdot,\cdot)$ we get an expression
 %
-\note{Is it for a single element? What about the integration limits
-  and $c_i$?}
-%
 \begin{align}
   \sum_{j=0}^{\nel-1} a(\young\area\shape_i, \shape_j) d_j = (\shape_i, f) + \young(0)\area(0)\shape_i(0) h - a(\young\area\shape_i,\shape_\nel)g. \label{eq:galerkin-row}
 \end{align}
@@ -282,7 +282,7 @@ After constructing element stiffness matrix and the force vector, we
 have proceed to the solution of the system \eqref{eq:concise-eq}. In
 the first attempt, we have found the displacement vector by inverting
 the stiffness matrix using \code{np.linalg.inv} function (we imported
-\code{numpy} library as \code{np}). So in the current version, we
+\numpy\ library as \code{np}). So in the current version, we
 solve the system using \code{np.linalg.solve} function, which uses
 \lapack\ routine \code{_gesv}. A performance benchmark has shown
 that for a $5000$ elements the solution of the system using the
@@ -290,7 +290,9 @@ that for a $5000$ elements the solution of the system using the
 (\ie $2.5$ seconds compared to $8.6$ seconds on Intel Core i5-3470 CPU
 at a clock frequency of 3.20GHz).
 %
-\note{it would be interesting to see what order of $N$ is the computational cost}
+\note{it would be interesting to see what order of $N$ is the
+  computational cost. It should be $\cO{N^2}$ for gaussian elimination
+  and $\cO{N^3}$ for matrix inversion. }
 
 The code for the computation is shown as follows.
 
@@ -324,6 +326,10 @@ finally the solution for the displacement is shown both as a numerical
 result and exact solution obtained analytically. As the numerical
 results are exact in this case, also the norm of the difference
 between the numerical and analytical results is zero.
+%
+\note{the result at the nodes is 0, but what about the result on the
+  midpoints? Hughes seems to talk about relative error in $u_{,x}$
+  what is that useful for?  How is the order of convergence?}
 
 \tabref{tab:comp-cost} shows the computational results for the
 simulation using $5000$ elements. The remaining parameters are
@@ -339,13 +345,13 @@ stiffness matrix element-wise.
 \begin{table}
   \centering
   \label{tab:comp-cost}
-\caption{Computational cost of the solving of the system.}
+\caption{Computational cost of the solving of the system for $N=5000$.}
 \begin{tabular}{ll}
   \toprule
   Task & cost (seconds)\\
   \midrule
-Constructing stiffness matrix: & 7.161638498306274   \\
-Constructing force vector:     & 0.33005428314208984 \\
+  Constructing stiffness matrix: & 7.161638498306274   \\
+  Constructing force vector:     & 0.33005428314208984 \\
   Solving the system:            & 2.460254430770874   \\
   \bottomrule
 \end{tabular}
@@ -353,8 +359,28 @@ Constructing force vector:     & 0.33005428314208984 \\
 
 \lstinputlisting[breaklines=true]{galerkin.out}
 
+\section{Element-wise Construction of Stiffness Matrix and Force Vector}
 
-% \note{----------work in progress----------}
+The time of construction of the stiffness matrix for this case has
+reduced from $7.16$ seconds to $0.05$ seconds in a computation of
+$N= 5000$ nodes (as shown in the \tabref{tab:comp-cost}). This is
+probably because now the stiffness is given explicitely, rather then
+integrated from the shape functions.
+
+\figref{fig:element} shows the results of the elementwise construction
+of the stiffness matrix. This now also allows setting elements of
+different length.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1.0\textwidth]{element.eps}
+  \caption{Element wise construction of the stiffness matrix.}
+  \label{fig:element}
+\end{figure}
+
+\lstinputlisting[language=python, style=mystyle, breaklines=true]{element.py}
+
+-\note{it remains to explain the element-wise construction of the stiffness matrix}
 
 % The integral defining the stiffness matrix in \label{eq:stme} can be
 % now split into piecewise as
@@ -366,7 +392,7 @@ Constructing force vector:     & 0.33005428314208984 \\
 %   \int_{x_{i}}^{x_{i+1}} \young(x)\area(x)\shape_{i,x}(x) \shape_{j,x}(x) \dd x. \label{eq:stme-piecewise}
 % \end{align}
 
-%
+
 % Each term in \eqref{eq:stme-piecewise} can be interpreted as a
 % stiffness matrix of a single element
 % %

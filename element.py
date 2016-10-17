@@ -8,16 +8,23 @@ import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 
 def dspl_exact(x,q=-1, h=0, g=0):
-    '''exact displacement for constant forces q with the boundary value $-u_{,x}(0)=h$, $u(1)=g$'''
+    '''Exact displacement for constant forces q with the boundary value $-u_{,x}(0)=h$, $u(1)=g$'''
     return q/2*(1-x**2) + (1-x)*h + g
 
 def forces(x):
-    '''return constant body forces'''
+    '''Return constant body forces'''
     q   = -1
     return q
 
+def loc_mat(a,e):
+    '''Returns mapping from the element matrix to global matrix'''
+    if a == 0:
+        return e
+    elif a == 1:
+        return e+1
+
 def mat_stiff(X):
-    '''constructing the global stiffness matrix'''
+    '''Constructing the global stiffness matrix'''
 
     K = np.zeros((X.size,X.size))
     # global stiffness matrix
@@ -38,7 +45,7 @@ def mat_stiff(X):
     return K
 
 def vec_force(X):
-    '''constructing force vector '''
+    '''Constructing force vector '''
 
     F = np.zeros((X.size,1))
     x = 0
@@ -59,7 +66,7 @@ def vec_force(X):
     return F
 
 def sol_num(X):
-    '''returns vector of numerical solution of the displacement'''
+    '''Returns vector of numerical solution of the displacement'''
 
     # Construct stiffness matrix
     K = mat_stiff(X)
@@ -73,12 +80,17 @@ def sol_num(X):
 
 if __name__ == '__main__':
     
-    nel = 8                           # number of elements
-    L   = 1.0                         # length
+    nel = 8
+    L   = 1.0                   # length
     dx  = L/nel                       # space increment (uniform)
-    X   = np.arange(0.0+dx,L,dx)**2 # vector of position of free elements
-    X   = 1-X[::-1]             # vector of position of free elements
-    X += -X[0]
+    # X = np.array([0,1,5,6,6.5,7,9,9.5])*1e-1
+    X = np.random.rand(nel)
+    X[0]=0
+    X.sort()
+
+    # X   = np.arange(0.0+dx,L,dx)**2 # vector of position of free elements
+    # X   = 1-X[::-1]             # vector of position of free elements
+    # X += -X[0]
 
     # find numerical solution
     d = sol_num(X).reshape(X.size)
@@ -87,13 +99,14 @@ if __name__ == '__main__':
     
     # print the results
     if DEBUG:
+        print("\nVector of possitions:\n",X)
         print("\nDisplacement (numerical):\n",d)
         print("\nExact displacement (computed analytically):\n",D)
         print("\nDifference between exact and numerical:\n",D-d)
         print("\nNorm of the difference:",np.linalg.norm(D-d))
 
-    # find exact solution
-    x = np.arange(0.0,L,dx/16)
+    # # find exact solution
+    x = np.arange(0.0,L,L*0.01)
     exact = dspl_exact(x)
 
     if PLOT:
@@ -106,4 +119,4 @@ if __name__ == '__main__':
         if DEBUG:
             plt.show()
         else:
-            plt.savefig('displacement1.eps', format='eps', dpi=1000)
+            plt.savefig('element.eps', format='eps', dpi=1000)
