@@ -90,6 +90,7 @@
 \newcommand{\mat}{\boldsymbol }
 
 \+{\dd}{\mathrm{d}}
+\+{\pd}{\partial}
 \+{\uuh}{u^h}
 \+{\ggh}{g^h}
 \+{\vvh}{v^h}
@@ -124,7 +125,7 @@ value problem
 where $L$ is the length, $\young(x)$ is Young's modulus and $\area$ is
 the cross section area, $u(x)$ is a deformation of the of the object
 in consideration, and shorthand notation for a derivative is written
-after a coma in a subscript, e.g. $u_{,x} = \dd u /\dd x$.  The
+after a coma in a subscript, e.g. $u_{,x} = \partial u /\partial x$.  The
 function $f(x)$ represents the body forces. The $g$ and $h$ are
 essential and natural boundary conditions respectively.
 
@@ -217,10 +218,13 @@ operators $a(\cdot,\cdot)$ and $(\cdot,\cdot)$ we get an expression
 %
 Using a notation
 %
-\begin{align}
-  \stme{ij} =& a(\young\area\shape_i,\shape_j) = \int_0^L \young(x)\area(x)\shape_{i,x}(x),\shape_{j,x}(x) \dd x \label{eq:stme} \\ 
-  F_i =& (\shape_i,f) + \young(0)\area(0)\shape_i(0) h - a(\young\area\shape_i,\shape_{\nel}) g .
-\end{align}
+\begin{subequations}
+  \begin{align}
+    \stme{ij} =& a(\young\area\shape_i,\shape_j) = \int_0^L \young(x)\area(x)\shape_{i,x}(x),\shape_{j,x}(x) \dd x \label{eq:stme} \\ 
+    F_i =& (\shape_i,f) + \young(0)\area(0)\shape_i(0) h - a(\young\area\shape_i,\shape_{\nel}) g .
+  \end{align}\label{eq:fem-stme-fi}
+\end{subequations}
+%
 Then equation \eqref{eq:galerkin-row} can be rewritten as
 %
 \begin{align}
@@ -382,34 +386,90 @@ different length.
 
 -\note{it remains to explain the element-wise construction of the stiffness matrix}
 
-% The integral defining the stiffness matrix in \label{eq:stme} can be
-% now split into piecewise as
-% %
-% \begin{align}
-%   \stme{ij} = \int_0^L \young(x)\area(x)\shape_{i,x}(x) \shape_{j,x}(x) \dd x 
-%   =\int_{x_{i-1}}^{x_{i+1}} \young(x)\area(x)\shape_{i,x}(x) \shape_{j,x}(x) \dd x=\\
-%   =\int_{x_{i-1}}^{x_{i}} \young(x)\area(x)\shape_{i,x}(x) \shape_{j,x}(x) \dd x +
-%   \int_{x_{i}}^{x_{i+1}} \young(x)\area(x)\shape_{i,x}(x) \shape_{j,x}(x) \dd x. \label{eq:stme-piecewise}
-% \end{align}
+\section{Combining Solid and Flow Mehcanics}
 
+This section aims to develop a model combining the mechanics for solid and flow. This aims to simulate the formation of the composite strucutre of carbon fibre and resin. 
 
-% Each term in \eqref{eq:stme-piecewise} can be interpreted as a
-% stiffness matrix of a single element
-% %
-% \begin{align}
-%  \estme{ij} =  \int_{x_{i}}^{x_{i+1}} \young(x)\area(x)\shape_{i,x}(x) \shape_{j,x}(x) \dd x
-% \end{align}
-% \note{it might need to change the indexes}
+Recall the boundary value problem \eqref{eq:bvp}  which now reads as
+%
+\begin{align}
+  u_{,xx} + f(x,t) = 0, \label{eq:bvp-t}
+  &&u(L) = g, u_{,x}(0) = -h,
+\end{align}
+%
+Let's consider the body forces $f(x,t)$ involved in the material
+during the proces of curration. Then the resin is in its liquid state
+and the carbon fibre (solid) acts as a porous material through which
+the resin can flow. So the body forces read as\note{check the signs}
+%
+\begin{align}
+  f(x,t) = F_g + F_r + F_m      , \label{eq:const}
+\end{align}
+%
+where the gravitational force corresponds to
+%
+\begin{align}
+F_g = m(x,t) g, \label{eq:grav-force}
+\end{align}
+%
+where $g$ is gravitational acceleration constant, $m(x,t)$ represents
+the total mass combining the contribution from the solid $m_s$ and
+resin $m_r(x,t)$ as $m(x,t) = m_s(x) + m_r(x,t)$. The total mass at a
+point $x$ will change in time, as the resin will accumulate as a head
+in the top of the material. However, for a small deformations we
+assume $m_s(t) = const$, $m_r(t)=const$.
 
-% %
-% The definition can be further simplified depending on the relation
-% between the $i$ and $j$ as
-% %
+The forces in the material are 
+\begin{align}
+  F_m = - (\sigma -  P(x,t))_{,x}, \label{eq:force-material}
+\end{align}
+%
+where $\sigma$ is the stress in the solid part and $P(x,t)$ is the
+pressure of the resin which acts in the opposite direction of the
+stress. The pressure combines the hydrostatical pressure of the resin,
+$P_h$, and applied pressure, $P_a(t)$, $P(x,t) = P_h(x) + P_a(t)
+$. Because $P_h \ll P_a$, we assume $P(x,t) = P_a(t)$.
 
+The inertia of the resin, can be characterised by a
+%
+\begin{align}
+    F_r = m_r(x) v_{r,t}(x,t), \label{eq:force-resin}
+\end{align}
+%
+where and $v_r$ is the velocity of the flow of the resin through the
+pores of the carbon fibre, which is found according to the Darcy's law
+that reads as
+%
+\begin{align}
+  v_r(x,t) = \frac{K}{\mu} P_{a,x}, \label{eq:darcy}
+\end{align}
+%
+\note{is $P_a$ space-dependent? If not pehaps it is not a good idea to
+  ignore the hydrostatic pressure? This is because then this term
+  would vanish and it is the only time-dependent term. Hence, the
+  equations would reduce to static equilibrum equations.}
+%
+so its time derivative gives us
+\begin{align}
+  v_{r,t}(x,t) = \frac{K}{\mu} P_{a,xt}, \label{eq:darcy-ddt}
+\end{align}
+assuming that the $K$ and $\mu$ remain constant.
+%
+Putting \eqref{eq:darcy-ddt} and \eqref{eq:force-resin} together we obtain
+%
+\begin{align}
+  F_r = m_r(x) \frac{K}{\mu} P_{a,xt} \label{eq:force-resin-final}.
+\end{align}
 
-% Now we can write the stiffness matrix for a single element,  in an
-%  interval $[x_{i-1}, x_i]$ (where $i = 1, \hdots, \nel$ ) as
-
+We can now put \eqref{eq:grav-force}, \eqref{eq:force-material}, and
+\eqref{eq:force-resin-final}, back to \eqref{eq:const}  to get
+%
+\begin{align}
+  f(x,t) = - m g - (\sigma -  P_a(t))_{,x}  +m_r(x) \frac{K}{\mu} P_{a,xt}
+\end{align}
+%
+then we can plug the boundary value problem \eqref{eq:bvp-t} into
+\eqref{eq:concise-eq}, in which we use \eqref{eq:fem-stme-fi}.
 
 
 
