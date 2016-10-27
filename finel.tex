@@ -8,6 +8,10 @@
 \usepackage{xcolor}
 \usepackage{booktabs}
 
+% fancy notations https://en.wikibooks.org/wiki/LaTeX/Mathematics
+\usepackage{mathrsfs}
+\usepackage{amssymb}            % for mathfrak -- canonical font
+
 \usepackage[left=3cm,right=3cm,top=2cm,bottom=2cm,asymmetric]{geometry}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % hyperlinks in the document
@@ -81,6 +85,7 @@
 
 \newcommand{\notcolor}{blue}
 \newcommand{\note}[1]{{\color{red}\newline(#1)}}
+\newcommand{\X}[1]{{\color{purple}#1} }
 \newcommand{\QM}{{\color{red}(?)}}
 
 \newcommand{\+}[2]{\newcommand#1{{\color{\notcolor}#2}}}
@@ -111,6 +116,21 @@
 
 \1{\cO}{\mathcal{O}(#1)}
 
+\+{\bcg}{\mathfrak{g}}
+\+{\bch}{\mathfrak{h}}
+
+\+{\press}{P}                   % pressure
+\+{\pressatm}{P_\mathrm{atm}}   % atmospheric pressure
+\+{\stress}{\sigma}             % total stress
+\+{\efstress}{\bar\sigma}       % effective stress
+\+{\rdense}{\rho_r}             % resin density
+
+\+{\dx}{k}                      % space step
+\+{\dt}{h}                      % time step
+\1{\bigO}{\mathcal{O}(#1)}      % big O notation
+\2{\disp}{u_{#1}^{#2}}          % shorthand for u
+
+
 \begin{document}
 
 \section{Statement of the system}
@@ -120,13 +140,13 @@ value problem
 %
 \begin{align}
   \young(x) \area(x) u_{,xx} + f(x) = 0, \label{eq:bvp}
-  &&u(L) = g, u_{,x}(0) = -h,
+  &&u(L) = \bcg, u_{,x}(0) = -\bch,
 \end{align}
 where $L$ is the length, $\young(x)$ is Young's modulus and $\area$ is
 the cross section area, $u(x)$ is a deformation of the of the object
 in consideration, and shorthand notation for a derivative is written
 after a coma in a subscript, e.g. $u_{,x} = \partial u /\partial x$.  The
-function $f(x)$ represents the body forces. The $g$ and $h$ are
+function $f(x)$ represents the body forces. The $\bcg$ and $\bch$ are
 essential and natural boundary conditions respectively.
 
 Let $u(x)$ be a solution of system \eqref{eq:bvp} then we may write
@@ -157,7 +177,7 @@ function, the previous simplifies as
 %
 \begin{align}
   \int_0^L u_{,x} (\young(x) \area(x) w(x))_{,x} \dd x =  
-  \int_0^L f(x) w(x) \dd x + h \young(0) \area(0)  w(0)
+  \int_0^L f(x) w(x) \dd x + \bch \young(0) \area(0)  w(0)
   \label{eq:weak-exact}
 \end{align}
 %
@@ -172,7 +192,7 @@ method. This method uses \eqref{eq:weak-exact} and provides an
 approximation of the boundary value problem \eqref{eq:bvp} as
 %
 \begin{align}
-a(\young\area\wwh,\uuh) = (\wwh,f) + h \young(0)\area(0)\wwh(0) \label{eq:weak-approx}
+a(\young\area\wwh,\uuh) = (\wwh,f) + \bch \young(0)\area(0)\wwh(0) \label{eq:weak-approx}
 \end{align}
 %
 where we define the operators $a(y,z) = \int_0^L y_{,x} z_{,x} \dd x$
@@ -190,7 +210,7 @@ substitute \eqref{eq:galerkin-construc} into \eqref{eq:weak-approx} to
 obtain
 %
 \begin{align}
-  a(\young\area\wwh,\vvh) = (\wwh, f) + \young(0)\area(0)\wwh(0)h - 
+  a(\young\area\wwh,\vvh) = (\wwh, f) + \young(0)\area(0)\wwh(0)\bch - 
   a(\young\area\wwh,\ggh)\label{eq:galerkin}
 \end{align}
 %
@@ -213,7 +233,7 @@ the \eqref{eq:galerkin} and using the bilinearity property of
 operators $a(\cdot,\cdot)$ and $(\cdot,\cdot)$ we get an expression
 %
 \begin{align}
-  \sum_{j=0}^{\nel-1} a(\young\area\shape_i, \shape_j) d_j = (\shape_i, f) + \young(0)\area(0)\shape_i(0) h - a(\young\area\shape_i,\shape_\nel)g. \label{eq:galerkin-row}
+  \sum_{j=0}^{\nel-1} a(\young\area\shape_i, \shape_j) d_j = (\shape_i, f) + \young(0)\area(0)\shape_i(0) \bch - a(\young\area\shape_i,\shape_\nel)\bcg. \label{eq:galerkin-row}
 \end{align}
 %
 Using a notation
@@ -221,7 +241,7 @@ Using a notation
 \begin{subequations}
   \begin{align}
     \stme{ij} =& a(\young\area\shape_i,\shape_j) = \int_0^L \young(x)\area(x)\shape_{i,x}(x),\shape_{j,x}(x) \dd x \label{eq:stme} \\ 
-    F_i =& (\shape_i,f) + \young(0)\area(0)\shape_i(0) h - a(\young\area\shape_i,\shape_{\nel}) g .
+    F_i =& (\shape_i,f) + \young(0)\area(0)\shape_i(0) \bch - a(\young\area\shape_i,\shape_{\nel}) \bcg .
   \end{align}\label{eq:fem-stme-fi}
 \end{subequations}
 %
@@ -239,7 +259,7 @@ where $\stm$ is a \emph{stiffness matrix}, $\vdspl$ is a
 
 \section{First problem}
 
-Consider boundary value problem \eqref{eq:bvp} where $g=h =0$ with a
+Consider boundary value problem \eqref{eq:bvp} where $\bcg=\bch =0$ with a
 constant force as $f(x) = q$, where $q=-1$, length of the piece is
 $L=1$, cross-section area and young modulus are $A(x) = E(x) = 1$.
 
@@ -377,7 +397,7 @@ different length.
 
 \begin{figure}
   \centering
-  \includegraphics[width=1.0\textwidth]{element.eps}
+  \includegraphics[width=1.0\textwidth]{fig/element.eps}
   \caption{Element wise construction of the stiffness matrix.}
   \label{fig:element}
 \end{figure}
@@ -386,91 +406,184 @@ different length.
 
 -\note{it remains to explain the element-wise construction of the stiffness matrix}
 
-\section{Combining Solid and Flow Mehcanics}
+\section{Combining Solid and Flow Mechanics}
 
-This section aims to develop a model combining the mechanics for solid and flow. This aims to simulate the formation of the composite strucutre of carbon fibre and resin. 
+This section aims to develop a model combining the mechanics for solid
+and flow. This aims to simulate the formation of the composite
+structure of carbon fibre and resin. During the formation the material
+is placed into a pressure chamber, where a pressure is applied to the
+material in an elevate temperatures. Due to the high temperature, the
+resin becomes liquid and the pressure causes the flow of the resin out
+of the material such that the carbon fibres become compressed
+together. Consequently the resin undergoes a process of cure, that
+causes a solidification of the resin so that the material is ``glued''
+together.
 
-Recall the boundary value problem \eqref{eq:bvp}  which now reads as
+Here we consider a toy model for a formation of the material as
+described.  In this situation the total stress is composed as
 %
 \begin{align}
-  u_{,xx} + f(x,t) = 0, \label{eq:bvp-t}
-  &&u(L) = g, u_{,x}(0) = -h,
+\stress = \efstress(x,t) - \press(x,t)
 \end{align}
 %
-Let's consider the body forces $f(x,t)$ involved in the material
-during the proces of curration. Then the resin is in its liquid state
-and the carbon fibre (solid) acts as a porous material through which
-the resin can flow. So the body forces read as\note{check the signs}
-%
+where $\press(x,t)$ is the resin pressure and the effective stress
+$\efstress$ that are dependent both on the reference position $x$ and
+the time $t$. The effective stress is connected with the
+displacement by a constitutive law
 \begin{align}
-  f(x,t) = F_g + F_r + F_m      , \label{eq:const}
+\efstress = u_{,x},
 \end{align}
 %
-where the gravitational force corresponds to
-%
-\begin{align}
-F_g = m(x,t) g, \label{eq:grav-force}
-\end{align}
-%
-where $g$ is gravitational acceleration constant, $m(x,t)$ represents
-the total mass combining the contribution from the solid $m_s$ and
-resin $m_r(x,t)$ as $m(x,t) = m_s(x) + m_r(x,t)$. The total mass at a
-point $x$ will change in time, as the resin will accumulate as a head
-in the top of the material. However, for a small deformations we
-assume $m_s(t) = const$, $m_r(t)=const$.
+where the parameters describing the properties of the material are
+neglected and $u= u(x,t)$ represents the displacement.
 
-The forces in the material are 
+From the Newton third law (sum of forces equals to zero) we get
+%
 \begin{align}
-  F_m = - (\sigma -  P(x,t))_{,x}, \label{eq:force-material}
+  0 =
+  \stress_{,x} + f(x) =
+  \efstress_{,x}(x,t) - \press(x,t)_{,x} + f(x) =
+  % (u_{,x}(x,t) - \press(x,t))_{,x} + f(x) =\nonumber \\
+  u_{,xx}(x,t) - \press_{,x}(x,t) + f(x) 
+  % , 
+  % &&u(0) = \bcg, u_{,x}(L) = -\bch\label{eq:bvp-t}.
 \end{align}
 %
-where $\sigma$ is the stress in the solid part and $P(x,t)$ is the
-pressure of the resin which acts in the opposite direction of the
-stress. The pressure combines the hydrostatical pressure of the resin,
-$P_h$, and applied pressure, $P_a(t)$, $P(x,t) = P_h(x) + P_a(t)
-$. Because $P_h \ll P_a$, we assume $P(x,t) = P_a(t)$.
+where the body forces and the inertia of the material are neglected
+$f(x) = 0$, as the gravitaional force is small compared to the applied
+pressure, and the deformation, and hence the speeds are small.
+%
+So we obtain a boundary value problem
+%
+\begin{align}
+  u_{,xx}(x,t) - \press_{,x}(x,t) + f(x) \label{eq:bvp-flow}
+  = 0 , &&& u(0,t) = 0,\\\nonumber
+        &&&u(L,t) =
+            \begin{cases}
+              -Rt &\text{ for } t < T,\\
+              -RT &\text{ for } t > T.
+            \end{cases} 
+\end{align}
+%
+The boundary at the reference point $L$ is compressed by a press with
+a constant speed $R$ for in the first $T$ time units. Then the press
+is stoped at the possition reached after $T$.
 
-The inertia of the resin, can be characterised by a
+%
+
+The flow of the resin through the fibre bed will follow Darcy's law.
+This law describes the flow of a fluid through a porous material, and
+is analogous to Ohm's law from the theory of electric circuits. The
+Darcy's law reads as
 %
 \begin{align}
-    F_r = m_r(x) v_{r,t}(x,t), \label{eq:force-resin}
+  v(x,t) = -\frac{K}{\mu} \press_{,x}. \label{eq:darcy}
 \end{align}
+where the $v(x,t)$ is the velocity of the flow, $K$ is a fibre bed
+permeability (due to the size of the pores),
 %
-where and $v_r$ is the velocity of the flow of the resin through the
-pores of the carbon fibre, which is found according to the Darcy's law
-that reads as
+%
+$\mu$ is the resin viscosity.
+% , and $\rdense$ is the density of the resin.
+%
+% \note{later $K =K(t)$ will depend on time as the pores go gradually
+%   copressed.  For small deformations this effect is neglected. Also,
+%   $\mu$ will depend on the resin temperature and the state of
+%   cure of the resin.}
+%
+For simplicity, let's consider a case where $K=1, \mu=1$.
+% , so the
+% equation \eqref{eq:darcy} gives $v(x,t) = -(\press + \rdense g x)$. 
+%
+
+The velocity of the flow constrains the position of the fibre bed,
+hence by linking the definition of velocity $v = - u_{,t}$ (recall the
+notation $u_{,t} = \partial u/\partial t$) with the Darcy's law, we
+can write an inital value problem for the internal points of the
+material as
 %
 \begin{align}
-  v_r(x,t) = \frac{K}{\mu} P_{a,x}, \label{eq:darcy}
-\end{align}
-%
-\note{is $P_a$ space-dependent? If not pehaps it is not a good idea to
-  ignore the hydrostatic pressure? This is because then this term
-  would vanish and it is the only time-dependent term. Hence, the
-  equations would reduce to static equilibrum equations.}
-%
-so its time derivative gives us
-\begin{align}
-  v_{r,t}(x,t) = \frac{K}{\mu} P_{a,xt}, \label{eq:darcy-ddt}
-\end{align}
-assuming that the $K$ and $\mu$ remain constant.
-%
-Putting \eqref{eq:darcy-ddt} and \eqref{eq:force-resin} together we obtain
-%
-\begin{align}
-  F_r = m_r(x) \frac{K}{\mu} P_{a,xt} \label{eq:force-resin-final}.
+  u_{,t}(x,t) =  \press_{,x} , && u(x,0) = 0 , \text{ for } 0 < x < L. \label{eq:velocity}
 \end{align}
 
-We can now put \eqref{eq:grav-force}, \eqref{eq:force-material}, and
-\eqref{eq:force-resin-final}, back to \eqref{eq:const}  to get
+
+\subsection{Finite Differences Solution}
+
+We write the boundary \eqref{eq:bvp-flow} and initial
+\eqref{eq:velocity} value problem again as
 %
 \begin{align}
-  f(x,t) = - m g - (\sigma -  P_a(t))_{,x}  +m_r(x) \frac{K}{\mu} P_{a,xt}
+  \label{eq:heat}
+  u_{,xx}(x,t) - u_{,t}(x,t) + f(x) 
+  =& 0 ,        &&u(x,0) = 0, u(L,t) =
+            \begin{cases}
+              -Rt &\text{ for } t < T,\\
+              -RT &\text{ for } t > T,
+            \end{cases}\\\nonumber
+ &&& u(0,t) = 0.
 \end{align}
+
+The simplest method for solving this system is a finite difference
+method. This use time and space discretisation as
 %
-then we can plug the boundary value problem \eqref{eq:bvp-t} into
-\eqref{eq:concise-eq}, in which we use \eqref{eq:fem-stme-fi}.
+\begin{subequations}
+  \begin{align}
+    x_i = x_0 + i\dx,\\
+    t_j = t_0 + j\dt,
+  \end{align} \label{eq:discr}
+\end{subequations}
+%
+where $\dx$ is the space step and $\dt$ is the time step.  So we can
+write the displacement at a certain point in time-space as
+$\disp{i}{j} \approx u(x_i,t_j)$. Then we find the discretisation as
+%
+\begin{subequations}
+  \begin{align}
+    u_{,t}(x_i,t_j)  =& \frac{\disp{i}{j+1} - \disp{i}{j}}{\dt} + \bigO{\dt}, \\
+    u_{,xx}(x_i,t_j) =& \frac{\disp{i+1}{j} - 2\disp{i}{j} + \disp{i-1}{j}}{\dx^2} + \bigO{\dx^2},
+  \end{align}\label{eq:fin-diff}
+\end{subequations}
+%
+where $\mathcal{O}$ is so-called big-O notation that specifies the
+order of the approximation and corresponds to the part of the solution
+that is ignored.
 
+Substituting \eqref{eq:fin-diff} into \eqref{eq:heat} we get the
+numerical algorithm as
+%
+\begin{align}
+  % \frac{\disp{i+1}{j} - 2\disp{i}{j} + \disp{i-1}{j}}{\dx^2} -
+  % \frac{\disp{i}{j+1} - \disp{i}{j}}{\dt}  
+  % + f(x_i) 
+  % = 0 \\
+\disp{i}{j+1}  =   \disp{i}{j} + \dt\left(\frac{\disp{i+1}{j} - 2\disp{i}{j} + \disp{i-1}{j}}{\dx^2}   + f(x_i) \right). \label{eq:findiff-alg}
+ % +\bigO{\dx^2, \dt}.
+\end{align}
 
+\begin{figure}
+  \centering
+  \begin{tabular}{l@{}l}
+    \includegraphics[width=0.5\linewidth]{fig/flow.eps}&
+                                                     \includegraphics[width=0.5\linewidth]{fig/surf.eps}\\
+    (a)&(b)
+  \end{tabular}
+  \caption{Finite difference solution of equation
+    \eqref{eq:heat}. Panel (a) shows the dependence of the
+    displacement on the possition in initial state (blue), at $t=0.1$
+    (magenta), at $t=0.2$ (green) and at the end of the simulation
+    $t=0.4$.  Panel (b) shows the time dependence (horizontal line) of
+    the deformation (colour-coded, left bar) in the reference frame.}
+  \label{fig:findiff-heat}
+\end{figure}
+
+\figref{fig:findiff-heat} shows the solution of equation
+\eqref{eq:heat} using finite difference method
+\eqref{eq:findiff-alg}. The time step $\dt=0.001$ and space step
+$\dx = 0.1$ such that the space contains $N_x=10$ nodes. The initial
+conditions $\disp{i}{0} = 0$. The bottom boundary is fixed at
+$\disp{0}{t} = 0$, while the top boundary move with a speed $R=1$ such
+that $\disp{N_x}{j} = j \dt R$.
+
+\lstinputlisting[language=python, style=mystyle, breaklines=true]{findiff.py}
 
 \end{document}
