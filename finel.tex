@@ -72,6 +72,12 @@
 \DeclareUrlCommand\code{\urlstyle{tt}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% strike out 
+% https://tex.stackexchange.com/questions/23711/strikethrough-text
+\usepackage{soul}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \newcommand{\figref}[1]{Figure~\ref{#1}}
 \newcommand{\tabref}[1]{Table~\ref{#1}}
 
@@ -84,8 +90,9 @@
 \newcommand{\ie}{{\it i.e.\ }}
 
 \newcommand{\notcolor}{blue}
-\newcommand{\note}[1]{{\color{red}\newline(#1)}}
-\newcommand{\X}[1]{{\color{purple}#1} }
+\newcommand{\note}[1]{{\color{red}(#1)}}
+\newcommand{\X}[1]{{\color{brown}\st#1} } % removed text
+\newcommand{\A}[1]{{\color{purple}#1}} % added text
 \newcommand{\QM}{{\color{red}(?)}}
 
 \newcommand{\+}[2]{\newcommand#1{{\color{\notcolor}#2}}}
@@ -93,6 +100,8 @@
 \newcommand{\2}[2]{\newcommand{#1}[2]{{\color{\notcolor}#2}}}
 
 \newcommand{\mat}{\boldsymbol }
+
+\renewcommand{\exp}[1]{\mathrm{exp}\left({#1}\right)}
 
 \+{\dd}{\mathrm{d}}
 \+{\pd}{\partial}
@@ -123,6 +132,7 @@
 \+{\pressatm}{P_\mathrm{atm}}   % atmospheric pressure
 \+{\stress}{\sigma}             % total stress
 \+{\efstress}{\bar\sigma}       % effective stress
+\+{\strain}{\varepsilon}       % strain
 \+{\rdense}{\rho_r}             % resin density
 
 \+{\dx}{k}                      % space step
@@ -130,6 +140,7 @@
 \1{\bigO}{\mathcal{O}(#1)}      % big O notation
 \2{\disp}{u_{#1}^{#2}}          % shorthand for u
 
+\1{\ee}{\cdot 10^{#1}}          % times 10^x -- engineering notation
 
 \begin{document}
 
@@ -331,7 +342,7 @@ $x=1$ at a position $0$. The solution is exact at the nods.
 
 \begin{figure}
   \centering
-  \includegraphics[width=1.0\textwidth]{displacement.eps}
+  \includegraphics[width=1.0\textwidth]{fig/displacement.eps}
   \caption{Dependence of the displacement on the position (x-axis) for
     a computation of eight degrees of freedom. Numerical results at
     the nodes (red dots) are linearly interpolated (red lines) and
@@ -417,13 +428,17 @@ resin becomes liquid and the pressure causes the flow of the resin out
 of the material such that the carbon fibres become compressed
 together. Consequently the resin undergoes a process of cure, that
 causes a solidification of the resin so that the material is ``glued''
-together.
+together. The following text is motivated by an article by
+\cite{Hubert1999}.
 
 Here we consider a toy model for a formation of the material as
-described.  In this situation the total stress is composed as
+described.  In this situation the total stress is composed according
+to the Terzaghi principle, which states that the porous material
+subjected to pressure is opposed by the fluid pressure in the
+pores. Mathematicaly, this is described as
 %
 \begin{align}
-\stress = \efstress(x,t) - \press(x,t)
+\stress = \efstress(x,t) - \press(x,t) \label{eq:flow-stress}
 \end{align}
 %
 where $\press(x,t)$ is the resin pressure and the effective stress
@@ -436,6 +451,7 @@ displacement by a constitutive law
 %
 where the parameters describing the properties of the material are
 neglected and $u= u(x,t)$ represents the displacement.
+
 
 From the Newton third law (sum of forces equals to zero) we get
 %
@@ -491,7 +507,7 @@ $\mu$ is the resin viscosity.
 %   $\mu$ will depend on the resin temperature and the state of
 %   cure of the resin.}
 %
-For simplicity, let's consider a case where $K=1, \mu=1$.
+For simplicity, let's consider a case where $K/\mu=1$.
 % , so the
 % equation \eqref{eq:darcy} gives $v(x,t) = -(\press + \rdense g x)$. 
 %
@@ -510,7 +526,8 @@ material as
 \subsection{Finite Differences Solution}
 
 We write the boundary \eqref{eq:bvp-flow} and initial
-\eqref{eq:velocity} value problem again as
+\eqref{eq:velocity} value problem in a simplified form, where the
+physical units are ignored, as follows
 %
 \begin{align}
   \label{eq:heat}
@@ -585,5 +602,103 @@ $\disp{0}{t} = 0$, while the top boundary move with a speed $R=1$ such
 that $\disp{N_x}{j} = j \dt R$.
 
 \lstinputlisting[language=python, style=mystyle, breaklines=true]{findiff.py}
+
+\subsection{Physical units}
+
+The goal of the previous text was to develop a simple toy example of a
+type of equations describing the system. In the process we have ignored
+or largely simplify the physical units to obtain a model with
+mathematical characteristics rather then aiming for physical
+precision. In the following text we focus to address the assumptions
+in order to obtain more physically detailed model. The constants in the
+models are shown in \tabref{tab:phys-const}.
+
+The first assumption we made was that the stress is a linear. This is
+only correct for very small deformations.  The stress is a non-linear
+variable dependent on the volume fraction of the carbon fibre in the
+material. As the material compresses the stiffness will increase
+non-linearly according to the formula
+% 
+\begin{align}
+  \efstress = \frac{3\pi E_f}{\beta^4}
+  \frac{\frac{V_f}{V_0} -1}{\left(\frac{1}{V_f} -\frac{1}{V_a}\right)^4}, \label{eq:stress-nonlin}
+\end{align}
+where the first term are constants fitted to experimental data
+specified in \tabref{tab:phys-const} ($E_f$, $\beta$ and $V_0$, and
+$V_a$ represents is the initial, and maximum fibre volume fraction
+respectively\note{citation? Where does it come from?}). The variable
+\begin{align}
+  V_f = \frac{V_{f0}}{1+\strain}
+\end{align}
+%
+where $\strain =  u_{,x}$.
+%
+\note{$V_{f0}$ is not defined in the presentation. Is it the same as $V_0$?}
+
+In the Darcy's law in equation \eqref{eq:darcy} we assumed the ratio
+between fibre bed permeability and the viscosity of the resin
+$K/\mu=1$. However, the permeability will depend on the volume
+fraction of the resin as
+%
+\begin{align}
+  K = \frac{r_f^2}{4k} \frac{(1-V_f)^3}{V_f^2} \label{eq:permeability}
+\end{align}
+%
+where the first term contains constants fitted to the experimental
+data as specified in \tabref{tab:phys-const} ($r_f$ and $k$). The
+viscosity of the resin is given by \note{where does it come from?}
+%
+\begin{align}
+  \mu = g(V_f) \mu_\infty \exp{\frac{E_\mu }{R T}} \left(\frac{\alpha_g}{\alpha_g - \alpha}\right)^{A+B\alpha} \label{eq:viscosity}
+\end{align}
+%
+where the constants ($\mu_\infty$, $\alpha_g$, $R$, $E_\mu$, $A$ and
+$B$) are explained in \tabref{tab:phys-const}, $g(V_f)$ accounts for
+low viscosity of the air \note{how to call it? what it means?}, $T$ is
+the temperature in Kelvins, which is controled in the experiment,
+$\alpha$ is the degree of cure which takes values in the interval
+$[0,1]$ and is described by a differential equation in a form
+%
+\begin{align}
+  \alpha_{,t} =  A_\alpha \exp{-\frac{E_\alpha }{RT}} \alpha^m (1-\alpha)^n \label{eq:cure}
+\end{align}
+%
+where the constants ($A_\alpha$, $E_\alpha$, $m$, $n$ and $R$) are
+given in the table, $T$ is the temperature as mentioned above.
+\begin{table}
+  \centering
+  \begin{tabular}{llll}
+    \toprule
+    physical meaning & notation & value & units \\
+    \midrule
+    \QM                           & $E_f$        & $230$         & GPa            \\ 
+    \QM                           & $\beta$      & $350$         & \QM            \\
+    initial fibre volume fraction & $V_0$        & $0.55$        & (unitless)     \\
+    maximum fibre volume fraction & $V_a$        & $0.68$        & (unitless)     \\
+    \midrule
+    radius of fibre               & $r_f$        & $4\ee{-3}$    & mm             \\
+    Kozeny constants              & $k$          & $0.2$         & \QM            \\
+    \midrule
+    steady-state viscosity\QM     & $\mu_\infty$ & $7.6536\ee{5}$ & Pa$\cdot$s \QM \\ 
+    activation \note{of what?}    & $E_\mu$ & $3.45\ee{-19}$& GPa$\cdot$s\\
+    Boltzman constant             & $R$          & $8.617$       & eV/K           \\
+    degree of cure at  gelation   & $\alpha_g$   & $0.47$        & \QM            \\ 
+     \QM                &$A$ & $3.8$&\QM\\
+     \QM                &$B$ & $2.5$&\QM\\
+    \midrule
+     \QM             &$A_\alpha$&$1.53\ee{5}$& 1/s \\
+     \QM             &$E_\alpha$& $6.65\ee{4}$  & J/mol          \\
+     \QM             &$m$&$0.813$& (unitless) \\
+     \QM             &$n$&$2.74$& (unitless) \\
+    \bottomrule
+  \end{tabular}
+  \caption{Physical constants. The parts separated by line explain variable from different equations, the first part corresponds to stress as given in \eqref{eq:stress-nonlin}, the second part corresponds to permeability as given in \eqref{eq:permeability}, the third part corresponds to viscosity as given in \eqref{eq:viscosity}, the fourth part corresponds to cure as given in \eqref{eq:cure}. If the variable is used in more than one equation, it is explained at a place of its first occurence.}
+  \label{tab:phys-const}
+\end{table}
+
+
+\bibliographystyle{unsrt}
+\bibliography{references.bib}
+
 
 \end{document}
