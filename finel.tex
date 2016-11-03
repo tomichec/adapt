@@ -89,58 +89,12 @@
 
 \newcommand{\ie}{{\it i.e.\ }}
 
-\newcommand{\notcolor}{blue}
 \newcommand{\note}[1]{{\color{red}(#1)}}
 \newcommand{\X}[1]{{\color{brown}\st#1} } % removed text
 \newcommand{\A}[1]{{\color{purple}#1}} % added text
 \newcommand{\QM}{{\color{red}(?)}}
 
-\newcommand{\+}[2]{\newcommand#1{{\color{\notcolor}#2}}}
-\newcommand{\1}[2]{\newcommand{#1}[1]{{\color{\notcolor}#2}}}
-\newcommand{\2}[2]{\newcommand{#1}[2]{{\color{\notcolor}#2}}}
-
-\newcommand{\mat}{\boldsymbol }
-
-\renewcommand{\exp}[1]{\mathrm{exp}\left({#1}\right)}
-
-\+{\dd}{\mathrm{d}}
-\+{\pd}{\partial}
-\+{\uuh}{u^h}
-\+{\ggh}{g^h}
-\+{\vvh}{v^h}
-\+{\wwh}{w^h}
-\+{\nel}{N}
-\+{\young}{E}                   % young's modulus
-\+{\area}{A}                    % cross-section area
-
-\+{\shape}{\Phi}                % elementary shape (basis) function
-\+{\stm}{\mat K}                % stiffness matrix
-\1{\stme}{K_{#1}}       % stiffness matrix entry
-
-\+{\estm}{\mat K^e}               % element stiffness matrix
-\1{\estme}{\mat K^e_{#1}}       % element stiffness matrix entry
-
-\+{\vdspl}{\vec d}
-\+{\vfrc}{\vec F}
-
-\1{\cO}{\mathcal{O}(#1)}
-
-\+{\bcg}{\mathfrak{g}}
-\+{\bch}{\mathfrak{h}}
-
-\+{\press}{P}                   % pressure
-\+{\pressatm}{P_\mathrm{atm}}   % atmospheric pressure
-\+{\stress}{\sigma}             % total stress
-\+{\efstress}{\bar\sigma}       % effective stress
-\+{\strain}{\varepsilon}       % strain
-\+{\rdense}{\rho_r}             % resin density
-
-\+{\dx}{k}                      % space step
-\+{\dt}{h}                      % time step
-\1{\bigO}{\mathcal{O}(#1)}      % big O notation
-\2{\disp}{u_{#1}^{#2}}          % shorthand for u
-
-\1{\ee}{\cdot 10^{#1}}          % times 10^x -- engineering notation
+\input{nots.tex}
 
 \begin{document}
 
@@ -429,7 +383,7 @@ of the material such that the carbon fibres become compressed
 together. Consequently the resin undergoes a process of cure, that
 causes a solidification of the resin so that the material is ``glued''
 together. The following text is motivated by an article by
-\cite{Hubert1999}.
+\citet{Hubert1999}.
 
 Here we consider a toy model for a formation of the material as
 described.  In this situation the total stress is composed according
@@ -613,27 +567,47 @@ precision. In the following text we focus to address the assumptions
 in order to obtain more physically detailed model. The constants in the
 models are shown in \tabref{tab:phys-const}.
 
-The first assumption we made was that the stress is a linear. This is
-only correct for very small deformations.  The stress is a non-linear
-variable dependent on the volume fraction of the carbon fibre in the
-material. As the material compresses the stiffness will increase
-non-linearly according to the formula
+The first assumption we made was that the stress is a linear function
+of the strain $\varepsilon = u_{,x}$. This is only correct for very
+small deformations when the volume fraction of the fibre does not
+change much.  The stress is a non-linear variable dependent on the
+volume fraction of the carbon fibre in the material. As the fibres are
+packed the stiffness will increase non-linearly. The the following
+formula shows a good agreement with experiments \citet{Gutowski1987},
+\ie it is a heuristic model
 % 
 \begin{align}
-  \efstress = \frac{3\pi E_f}{\beta^4}
-  \frac{\frac{V_f}{V_0} -1}{\left(\frac{1}{V_f} -\frac{1}{V_a}\right)^4}, \label{eq:stress-nonlin}
+  \efstress = A_s
+  \frac{\frac{\vfrac}{V_0} -1}{\left(\frac{1}{\vfrac} -\frac{1}{V_a}\right)^4}, \label{eq:stress-nonlin}
 \end{align}
-where the first term are constants fitted to experimental data
-specified in \tabref{tab:phys-const} ($E_f$, $\beta$ and $V_0$, and
-$V_a$ represents is the initial, and maximum fibre volume fraction
-respectively\note{citation? Where does it come from?}). The variable
+%
+where $A_s$ is so-called spring constant\note{reference for the expression of spring constant? In the \citet{Gutowski1987} only $A_s$ is specified.},
+%
 \begin{align}
-  V_f = \frac{V_{f0}}{1+\strain}
+  A_s = \frac{3\pi E_f}{\beta^4},
+\end{align}
+%
+fitted to experimental data and their values are specified in
+\tabref{tab:phys-const}.
+%
+The fibre volume fraction $V_0$, and $V_a$ represents the ratio
+between the total volume and the fibre volume at the initial, maximal
+packing respectively. The fibre volume fraction is found as
+%
+\begin{align}
+  \vfrac = \frac{V_0}{1+\strain} \label{eq:fibre-volume}
 \end{align}
 %
 where $\strain =  u_{,x}$.
+
+\figref{fig:consolidation} shows the change in the properties of the material during the consolidation. All panels shown for the region of the independent variable for which was the model designed. The panel (a) shows the dependency of the volume fraction on the strain as described by the \eqref{eq:fibre-volume}. As the strain decreases, \ie\ fibre bed is compressed, the fibres consolidate which means that the volume fraction of the fibres increase. The panel (b) shows the effective stress in the fibre bed during the consolidation as described by \eqref{eq:stress-nonlin}. In this panel we can observe that as the fibre volume fraction increases, the fibre bed becomes stiffer, which can be observed as higher stress. The last panel (c) shows the combination of the two previous pannels (a,b) and can be interpreted as the increase of stiffness with the consolidation.
 %
-\note{$V_{f0}$ is not defined in the presentation. Is it the same as $V_0$?}
+\begin{figure}
+  \centering
+  \includegraphics{consolidation.pdf}
+  \caption{Mechanical properties of the material during the consolidation of the carbon fibres. The combination of dependence of volume fraction on the strain as shown in panel (a), combined with the dependence of stress on volume fraction shown in panel (b), gives the dependence of the stress as a function of strain as shown in panel (c).}
+  \label{fig:consolidation}
+\end{figure}
 
 In the Darcy's law in equation \eqref{eq:darcy} we assumed the ratio
 between fibre bed permeability and the viscosity of the resin
@@ -641,55 +615,106 @@ $K/\mu=1$. However, the permeability will depend on the volume
 fraction of the resin as
 %
 \begin{align}
-  K = \frac{r_f^2}{4k} \frac{(1-V_f)^3}{V_f^2} \label{eq:permeability}
+  K = \frac{r_f^2}{4k} \frac{(1-\vfrac)^3}{\vfrac^2} \label{eq:permeability}
 \end{align}
 %
-where the first term contains constants fitted to the experimental
-data as specified in \tabref{tab:phys-const} ($r_f$ and $k$). The
-viscosity of the resin is given by \note{where does it come from?}
+where $r_f$ specifies the fiber radius and $k$ is so called Kozeny
+constant (see \tabref{tab:phys-const}). Also, the viscosity is a
+function of other variables, such as temperature and the degree of
+cure of the resin.
+
+\figref{fig:permeab} shows the dependence of the permeability fo the fibre bed during consolidation. Panel (a) shows the permeability as a function of  fibre volume fraction. When the fibre volume fraction is  high, the size of the pores between the material is higher, so the permeability is low. As the material is compressed and the fibre volume fraction reduces, the size of the pores reduces as well which results in the reduction of the permeability.
+%
+\begin{figure}
+  \centering
+  \includegraphics{permeab.pdf}
+  \caption{Permeability of the fibre bed during the consolidation.
+    The figure (a) The combination of dependence of volume fraction on
+    the strain as shown in \figref{fig:consolidation}(a), combined
+      with the dependence of the permeability on volume fraction shown
+      in this figure panel (a), gives the dependence of the
+      permeability as a function of strain as shown in panel (b).}
+  \label{fig:permeab}
+\end{figure}
+
+
+%
+Other assumption which we did the Darcy's law in equation
+\eqref{eq:darcy} regards the visosity of the resin.  The viscosity
+which should be substituted to \eqref{eq:darcy} is given by
+\note{where does it come from?}
 %
 \begin{align}
-  \mu = g(V_f) \mu_\infty \exp{\frac{E_\mu }{R T}} \left(\frac{\alpha_g}{\alpha_g - \alpha}\right)^{A+B\alpha} \label{eq:viscosity}
+  \mu = % g(\vfrac)
+  \muinf \exp{\frac{E_\mu }{R T}} \left(\frac{\curegel}{\curegel - \cure}\right)^{A+B\cure} \label{eq:viscosity}
 \end{align}
 %
-where the constants ($\mu_\infty$, $\alpha_g$, $R$, $E_\mu$, $A$ and
-$B$) are explained in \tabref{tab:phys-const}, $g(V_f)$ accounts for
-low viscosity of the air \note{how to call it? what it means?}, $T$ is
-the temperature in Kelvins, which is controled in the experiment,
-$\alpha$ is the degree of cure which takes values in the interval
-$[0,1]$ and is described by a differential equation in a form
+where the constants ($\muinf$, $\curegel$, $R$, $E_\mu$, $A$ and
+$B$) are explained in \tabref{tab:phys-const}, % $g(\vfrac)$ accounts for
+% low viscosity of the air \note{how to call it? what it means?},
+$T$ is the temperature in Kelvins, which is controled in the
+experiment, $\cure$ is the degree of cure that will be discussed
+later and which takes values in the interval $[0,1]$.
+
+\figref{fig:viscos} shows the dependence of the viscosity of the resin
+on the temperature and the degree of cure of the resin. Panel (a)
+shows the dependence on the temperature. As the temperature increases
+the resin ``melts'' which means that it becomes more viscous. Panel
+(b) shows the dependence of the viscosity on the degree of cure
+$\cure$. Although, the $\cure$ is allowed to get the interval between
+$[0,1]$ there is a singularity at a point $\cure = 0.48$, where the
+resin becomes nearly solid.
+
+\begin{figure}
+  \centering
+  \includegraphics{viscosity.pdf}
+  \caption{Viscosity of the resin. Panel (a) shows the dependence of the
+    viscosity on the temperature for three different values of
+    $\cure$: magenta line $\cure=0.1$, green line $\cure=0.2$, cyan
+    line $\cure=0.4$, panel (b) shows the dependence of the viscosity
+    on the degree of cure for three different temperature: magenta
+    line $\temp = 100$\degree C, green line $\temp = 130$\degree C, and cyan line
+    $\temp = 180$\degree C.}
+  \label{fig:viscos}
+\end{figure}
+
+
+
+The resin cure is described by a differential equation in a form
 %
 \begin{align}
-  \alpha_{,t} =  A_\alpha \exp{-\frac{E_\alpha }{RT}} \alpha^m (1-\alpha)^n \label{eq:cure}
+  \cure_{,t} =  A_\cure \exp{-\frac{E_\cure }{RT}} \cure^m (1-\cure)^n \label{eq:cure}
 \end{align}
 %
-where the constants ($A_\alpha$, $E_\alpha$, $m$, $n$ and $R$) are
+where the constants ($A_\cure$, $E_\cure$, $m$, $n$ and $R$) are
 given in the table, $T$ is the temperature as mentioned above.
+
+
 \begin{table}
   \centering
   \begin{tabular}{llll}
     \toprule
     physical meaning & notation & value & units \\
     \midrule
-    \QM                           & $E_f$        & $230$         & GPa            \\ 
-    \QM                           & $\beta$      & $350$         & \QM            \\
+    Young's modulus               & $E_f$        & $230$         & GPa            \\ 
+    data fitting constant         & $\beta$      & $350$         & (unitless)            \\
     initial fibre volume fraction & $V_0$        & $0.55$        & (unitless)     \\
     maximum fibre volume fraction & $V_a$        & $0.68$        & (unitless)     \\
     \midrule
     radius of fibre               & $r_f$        & $4\ee{-3}$    & mm             \\
-    Kozeny constants              & $k$          & $0.2$         & \QM            \\
+    Kozeny constant              & $k$          & $0.2$         & 1/s \QM            \\
     \midrule
-    steady-state viscosity\QM     & $\mu_\infty$ & $7.6536\ee{5}$ & Pa$\cdot$s \QM \\ 
-    activation \note{of what?}    & $E_\mu$ & $3.45\ee{-19}$& GPa$\cdot$s\\
-    Boltzman constant             & $R$          & $8.617$       & eV/K           \\
-    degree of cure at  gelation   & $\alpha_g$   & $0.47$        & \QM            \\ 
-     \QM                &$A$ & $3.8$&\QM\\
-     \QM                &$B$ & $2.5$&\QM\\
+    viscosity asymptote     & $\muinf$ & $3.45\ee{-10}$ & Pa$\cdot$s \QM \\ 
+    activation energy \note{of what?}    & $E_\mu$ & $7.6536\ee{5}$& J/mol\\
+    universal gas constant        & $R$          & $8.617$       & eV/K           \\
+    degree of cure at  gelation   & $\curegel$   & $0.47$        & (unitless)            \\ 
+    data fitting constant        &$A$ & $3.8$&(unitless)\\
+    data fitting constant        &$B$ & $2.5$&(unitless)\\
     \midrule
-     \QM             &$A_\alpha$&$1.53\ee{5}$& 1/s \\
-     \QM             &$E_\alpha$& $6.65\ee{4}$  & J/mol          \\
-     \QM             &$m$&$0.813$& (unitless) \\
-     \QM             &$n$&$2.74$& (unitless) \\
+     data fitting constant             &$A_\cure$&$1.53\ee{5}$& 1/s \\
+     activation energy             &$E_\cure$& $6.65\ee{4}$  & J/mol          \\
+     data fitting constant             &$m$&$0.813$& (unitless) \\
+     data fitting constant             &$n$&$2.74$& (unitless) \\
     \bottomrule
   \end{tabular}
   \caption{Physical constants. The parts separated by line explain variable from different equations, the first part corresponds to stress as given in \eqref{eq:stress-nonlin}, the second part corresponds to permeability as given in \eqref{eq:permeability}, the third part corresponds to viscosity as given in \eqref{eq:viscosity}, the fourth part corresponds to cure as given in \eqref{eq:cure}. If the variable is used in more than one equation, it is explained at a place of its first occurence.}
@@ -697,8 +722,23 @@ given in the table, $T$ is the temperature as mentioned above.
 \end{table}
 
 
-\bibliographystyle{unsrt}
-\bibliography{references.bib}
+\subsection{Implementation of Physical model}
+
+Here we describe the implementation of the models including the
+physical units. To simplify the process, the implementation will be
+done in several steps as follows
+%
+\begin{enumerate}
+\item constant fibre volume fraction of $\vfrac = 0.6$, temperature $T=\QM$, and degree of cure $\cure$; this gives a linear model with appropriate physical units, \label{en:all-const}
+\item fibre volume fraction dependent on the deformation according to formula \eqref{eq:fibre-volume}, the remaining variables as in previous case,
+\item ramped temperature $T_{,t} = q$ which leads to variable degree of cure $\cure$.
+\end{enumerate}
+
+Solving the point \ref{en:all-const} we write down the model using the physical units. From the 
+
+
+\bibliographystyle{apalike}
+\bibliography{references}
 
 
 \end{document}

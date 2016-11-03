@@ -1,0 +1,56 @@
+\newcommand{\notcolor}{blue}
+\newcommand{\+}[2]{\newcommand#1{{\color{\notcolor}#2}}}
+\newcommand{\1}[2]{\newcommand{#1}[1]{{\color{\notcolor}#2}}}
+\newcommand{\2}[2]{\newcommand{#1}[2]{{\color{\notcolor}#2}}}
+
+\newcommand{\mat}{\boldsymbol }
+\renewcommand{\exp}[1]{\mathrm{exp}\left({#1}\right)}
+
+\+{\degree}{$^\circ$}
+\+{\dd}{\mathrm{d}}
+\+{\pd}{\partial}
+\+{\uuh}{u^h}
+\+{\ggh}{g^h}
+\+{\vvh}{v^h}
+\+{\wwh}{w^h}
+\+{\nel}{N}
+\+{\young}{E}                   % young's modulus
+\+{\area}{A}                    % cross-section area
+
+\+{\shape}{\Phi}                % elementary shape (basis) function
+\+{\stm}{\mat K}                % stiffness matrix
+\1{\stme}{K_{#1}}       % stiffness matrix entry
+
+\+{\estm}{\mat K^e}               % element stiffness matrix
+\1{\estme}{\mat K^e_{#1}}       % element stiffness matrix entry
+
+\+{\vdspl}{\vec d}
+\+{\vfrc}{\vec F}
+
+\1{\cO}{\mathcal{O}(#1)}
+
+\+{\bcg}{\mathfrak{g}}
+\+{\bch}{\mathfrak{h}}
+
+\+{\press}{P}                   % pressure
+\+{\pressatm}{P_\mathrm{atm}}   % atmospheric pressure
+\+{\stress}{\sigma}             % total stress
+\+{\efstress}{\bar\sigma}       % effective stress
+\+{\strain}{\varepsilon}       % strain
+\+{\rdense}{\rho_r}             % resin density
+
+\+{\dx}{k}                      % space step
+\+{\dt}{h}                      % time step
+\1{\bigO}{\mathcal{O}(#1)}      % big O notation
+\2{\disp}{u_{#1}^{#2}}          % shorthand for u
+
+\1{\ee}{\cdot 10^{#1}}          % times 10^x -- engineering notation
+
+\+{\vfrac}{V_f}                 % fibre volume fraction
+\+{\permeab}{K}                 % permeability
+\+{\viscos}{\mu}                % viscosity
+\+{\cure}{\alpha}               % cure
+\+{\curegel}{\cure_g}          % cure gelation point
+\+{\temp}{T}                    % temperature
+
+\+{\muinf}{\mu_\infty} % theoretical viscosity at infinite temperature and no cure
