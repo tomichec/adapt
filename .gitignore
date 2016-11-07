@@ -1,1 +1,7 @@
 *~
+
+*.eps
+*.aux
+*.dvi
+*.log
+*.dat
