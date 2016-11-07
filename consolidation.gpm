@@ -25,10 +25,20 @@ E_mu = 7.6536e4			# activation energy (J/mol)
 alpha_g = 0.47			# degree of cure at gelation
 A = 3.8
 B = 2.5
-mu(T,alpha) = muinf *exp(E_mu/(R*T)) * ( alpha_g/(alpha_g-alpha))**(A+B*alpha)
+mu(T,alpha) = ( alpha < (0.45) ) ? \
+	    muinf *exp(E_mu/(R*T)) * ( alpha_g/(alpha_g-alpha))**(A+B*alpha) : \
+	    NaN;
 
 # Hubert et al. 1999 formulation for a different material
 # muinf = 4.6e-17			# Pa s
 # U = 114477			# J/mol
 # kappa = 14.8
 # mu(T,alpha) = muinf*exp(kappa*alpha)*exp(U/(R*T))
+
+# cure
+Aa = 1.53e5
+Ea = 6.65e4
+m = 0.813
+n = 2.74
+
+dcure(T,cure) =  Aa * exp(-Ea/(R*T)) * cure**m *(1-cure)**n 

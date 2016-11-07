@@ -11,4 +11,4 @@ set ytics 5
 set xlabel "TEMP"
 set ylabel "VISCOS"
 
-plot log(mu(CtK(x),0.1)) t 'CURE1', log(mu(CtK(x),0.2)) t 'CURE2', log(mu(CtK(x),0.4)) t 'CURE3'
+plot log10(mu(CtK(x),0.02)) t 'CURE1', log10(mu(CtK(x),0.2)) t 'CURE2', log10(mu(CtK(x),0.4)) t 'CURE3'
