@@ -600,7 +600,7 @@ packing respectively. The fibre volume fraction is found as
 %
 where $\strain =  u_{,x}$.
 
-\figref{fig:consolidation} shows the change in the properties of the material during the consolidation. All panels shown for the region of the independent variable for which was the model designed. The panel (a) shows the dependency of the volume fraction on the strain as described by the \eqref{eq:fibre-volume}. As the strain decreases, \ie\ fibre bed is compressed, the fibres consolidate which means that the volume fraction of the fibres increase. The panel (b) shows the effective stress in the fibre bed during the consolidation as described by \eqref{eq:stress-nonlin}. In this panel we can observe that as the fibre volume fraction increases, the fibre bed becomes stiffer, which can be observed as higher stress. The last panel (c) shows the combination of the two previous pannels (a,b) and can be interpreted as the increase of stiffness with the consolidation.
+\figref{fig:consolidation} shows the change in the properties of the material during the consolidation. All panels shown for the region of the independent variable for which was the model designed. The panel (a) shows the dependency of the volume fraction on the strain as described by the \eqref{eq:fibre-volume}. As the strain decreases, \ie\ fibre bed is compressed, the fibres consolidate which means that the volume fraction of the fibres increase. The panel (b) shows the effective stress in the fibre bed during the consolidation as described by \eqref{eq:stress-nonlin}. In this panel we can observe that as the fibre volume fraction increases, the fibre bed becomes stiffer, which can be observed as higher stress. The last panel (c) shows the combination of the two previous panels (a,b) and can be interpreted as the increase of stiffness with the consolidation.
 %
 \begin{figure}
   \centering
@@ -618,12 +618,12 @@ fraction of the resin as
   K = \frac{r_f^2}{4k} \frac{(1-\vfrac)^3}{\vfrac^2} \label{eq:permeability}
 \end{align}
 %
-where $r_f$ specifies the fiber radius and $k$ is so called Kozeny
+where $r_f$ specifies the fibre radius and $k$ is so called Kozeny
 constant (see \tabref{tab:phys-const}). Also, the viscosity is a
 function of other variables, such as temperature and the degree of
 cure of the resin.
 
-\figref{fig:permeab} shows the dependence of the permeability fo the fibre bed during consolidation. Panel (a) shows the permeability as a function of  fibre volume fraction. When the fibre volume fraction is  high, the size of the pores between the material is higher, so the permeability is low. As the material is compressed and the fibre volume fraction reduces, the size of the pores reduces as well which results in the reduction of the permeability.
+\figref{fig:permeab} shows the dependence of the permeability of the fibre bed during consolidation. Panel (a) shows the permeability as a function of  fibre volume fraction. When the fibre volume fraction is  high, the size of the pores between the material is higher, so the permeability is low. As the material is compressed and the fibre volume fraction reduces, the size of the pores reduces as well which results in the reduction of the permeability.
 %
 \begin{figure}
   \centering
@@ -640,7 +640,7 @@ cure of the resin.
 
 %
 Other assumption which we did the Darcy's law in equation
-\eqref{eq:darcy} regards the visosity of the resin.  The viscosity
+\eqref{eq:darcy} regards the viscosity of the resin.  The viscosity
 which should be substituted to \eqref{eq:darcy} is given by
 \note{where does it come from?}
 %
@@ -652,7 +652,7 @@ which should be substituted to \eqref{eq:darcy} is given by
 where the constants ($\muinf$, $\curegel$, $R$, $E_\mu$, $A$ and
 $B$) are explained in \tabref{tab:phys-const}, % $g(\vfrac)$ accounts for
 % low viscosity of the air \note{how to call it? what it means?},
-$T$ is the temperature in Kelvins, which is controled in the
+$T$ is the temperature in Kelvins, which is controlled in the
 experiment, $\cure$ is the degree of cure that will be discussed
 later and which takes values in the interval $[0,1]$.
 
@@ -672,12 +672,49 @@ resin becomes nearly solid.
     viscosity on the temperature for three different values of
     $\cure$: magenta line $\cure=0.1$, green line $\cure=0.2$, cyan
     line $\cure=0.4$, panel (b) shows the dependence of the viscosity
-    on the degree of cure for three different temperature: magenta
+    on the degree of cure for three different temperatures: magenta
     line $\temp = 100$\degree C, green line $\temp = 130$\degree C, and cyan line
     $\temp = 180$\degree C.}
   \label{fig:viscos}
 \end{figure}
 
+For ilustration the visosity we show some examples viscosity of
+selected fluids in \tabref{tab:viscos-example} obtained from wikipedia
+page on viscosity. The highest value of viscosity in the table is a
+material called pitch, which is a common name for a viscoelastic
+polymers, such as tar or asphalt. At those values of viscosity the
+pitch seems to be solid, however in longer observation, the fluidity
+can be observed as demonstrated in a pitch drop experiment developed
+in the School of Mathematics and Physics at The University of
+Queensland, Australia. In this longest running laboratory experiment
+pitch was placed in a funnel and allowed to flow down since the year
+1930. Due to high viscosity only nine drops have fallen down through
+the funel up to a current date.
+
+\begin{table}
+  \centering
+  \begin{tabular}{ll}
+    \toprule
+    fluid         & viscosity (Pa$\cdot$s) \\
+    \midrule
+    air           & $1.86\ee{-5}$          \\
+    water         & $8.94\ee{-4}$          \\
+    ethanol       & $1.074\ee{-3}$         \\ 
+    olive oil     & $0.081$                \\
+    honey         & $2$--$10$              \\
+    ketchup       & $50$--$100$            \\
+    peanut butter & $\sim 250$             \\
+    pitch         & $2.3\ee{8}$            \\
+    \bottomrule
+  \end{tabular}
+  \caption{Viscosity values of selected fluids at the room temperature $\sim 25$\degree C (source: wikipedia)}
+  \label{tab:viscos-example}
+\end{table}
+
+Other interesting table from the wikipedia page on viscosity (not
+shown) is on the temperature dependence of the viscosity of water. The
+table shows that the viscosity reduced by about one order of magnitude
+when heated from $10$ to $100$\degree C.  
 
 
 The resin cure is described by a differential equation in a form
@@ -688,6 +725,73 @@ The resin cure is described by a differential equation in a form
 %
 where the constants ($A_\cure$, $E_\cure$, $m$, $n$ and $R$) are
 given in the table, $T$ is the temperature as mentioned above.
+
+This model has two equilibrium points $\cure_{,t}=0$ the $\cure = 0$ is an unstable equilibrium and $\cure=1$ is a stable equilibrium. \figref{fig:cure} shows rate of cure of the resin as a dependence on the temperature (panel a) and cure (panel b). The cure takes strictly positive values, as is also evident from expression \eqref{eq:cure}. 
+
+The dependency of the rate of cure on temperature is almost exponential. From the room temperature, when almost no curing is happening it increases by about four orders of magnintude at the temperature of $200$\degree C.
+
+The dependency of the rate of cure on the degree of cure has a maximum at $\sim 0.2$. At high values of cure, the rate decreases. However, higher values of cure do not need to be considered as from the analysis of the viscosity it is apparent, that the resin is gelated solid for values of cure $\cure > 0.47$.
+
+\begin{figure}
+  \centering
+  \includegraphics{dcure.pdf}
+  \caption{Rate of cure of the resin. Panel (a) shows the dependence of the
+    rate of cure on the temperature for three different values of
+    $\cure$: magenta line $\cure=0.1$, green line $\cure=0.2$, cyan
+    line $\cure=0.4$, panel (b) shows the dependence of the rate of cure 
+    on the degree of cure for three different temperatures: magenta
+    line $\temp = 100$\degree C, green line $\temp = 130$\degree C, and cyan line
+    $\temp = 180$\degree C.}
+  \label{fig:cure}
+\end{figure}
+
+The resin is cured in a chamber of high pressure and temperature
+called autoclave. During this procedure a specific temperature
+protocol is followed.  The initial temperature $T_0 = 30$\degree C is
+increased during $30$ minutes up to the temperature of
+$T_f = 107.222$\degree C at which value it stays for another half an
+hour to allow the resin being expulsed from the fibre bed. After the
+first hour of the procedure ($t=3600$~s) the temperature undergoes a
+second increase for a duration of $30$ minutes up to the temperature
+of $176.66667$\degree C, at which value it stays for another half an
+hour. \note{check the duration} The purpose of the increased
+temperature is to elicit the cure of the resin.
+
+The simulation of the autoclave cure \eqref{eq:cure} was done using
+forward Euler solver and time step size of $\dt = 60$~s.
+\figref{fig:cure-exp}(a) shows the time evolution of the cure of the
+resin during a simulation of autoclave temperature protocol, which is
+shown in green lines on right axis of (b).  Panel (a) shows that the
+cure is negligible for the first $60$--$80$ minutes of the
+procedure. Then the cure undergoes a fast upstroke and at $2$ hours
+settles at values close to $0.8$.
+%
+\note{the equation \eqref{eq:cure} might not be realistic for high values of cure}
+
+Panel (b) in \figref{fig:cure-exp} shows the time evolution of
+viscosity in the same process as described above. The simulation
+results are used to calculate the viscosity using equation
+\eqref{eq:viscosity}. As the cure stays close to zero for the first
+$80$~minutes, the viscosity can be related to the temperature
+profile. After the first $30$~minutes, the resin is in a fluid state,
+which allows its flow out of the fibre bed. In the next increase of
+temperature, the viscosity further reduces, but then shoots up, as the
+cure increases. The graph ends around the point, where the viscosity
+passes the gelation point $\curegel$ at which the resin becomes solid
+and beyond which the viscosity model is no longer valid.
+
+\begin{figure}
+  \centering
+  \includegraphics{cure.pdf}
+  \caption{Time evolution of the cure of the resin in the autoclave
+    experiment (a), and related evolution of the viscosity of the
+    resin (b). The ODE \eqref{eq:cure} is subject to the autoclave
+    temperature protocol (shown in green lines, labels on the right
+    axis in (b) applies to both panels).}
+  \label{fig:cure-exp}
+\end{figure}
+
+
 
 
 \begin{table}
@@ -717,10 +821,9 @@ given in the table, $T$ is the temperature as mentioned above.
      data fitting constant             &$n$&$2.74$& (unitless) \\
     \bottomrule
   \end{tabular}
-  \caption{Physical constants. The parts separated by line explain variable from different equations, the first part corresponds to stress as given in \eqref{eq:stress-nonlin}, the second part corresponds to permeability as given in \eqref{eq:permeability}, the third part corresponds to viscosity as given in \eqref{eq:viscosity}, the fourth part corresponds to cure as given in \eqref{eq:cure}. If the variable is used in more than one equation, it is explained at a place of its first occurence.}
+  \caption{Physical constants. The parts separated by line explain variable from different equations, the first part corresponds to stress as given in \eqref{eq:stress-nonlin}, the second part corresponds to permeability as given in \eqref{eq:permeability}, the third part corresponds to viscosity as given in \eqref{eq:viscosity}, the fourth part corresponds to cure as given in \eqref{eq:cure}. If the variable is used in more than one equation, it is explained at a place of its first occurrence.}
   \label{tab:phys-const}
 \end{table}
-
 
 \subsection{Implementation of Physical model}
 
@@ -734,7 +837,9 @@ done in several steps as follows
 \item ramped temperature $T_{,t} = q$ which leads to variable degree of cure $\cure$.
 \end{enumerate}
 
-Solving the point \ref{en:all-const} we write down the model using the physical units. From the 
+Solving the point \ref{en:all-const} we write down the model using the physical units.
+
+
 
 
 \bibliographystyle{apalike}
