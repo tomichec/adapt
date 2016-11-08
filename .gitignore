@@ -1,7 +1,10 @@
 *~
-
+*.pdf
 *.eps
 *.aux
 *.dvi
 *.log
 *.dat
+*.bbl
+*.blg
+*.out
