@@ -6,20 +6,20 @@ from matplotlib import cm
 
 DEBUG = 0
 
-T = 0.4                         # duration of the simulation
 L = 1                         # length of the material
-dt = 0.001                    # time step
 Nx = 10                       # number of space steps
-
-Nt = int(T/dt)                  # numer of time steps
-dx = L/Nx                       # space step
+dx = L/Nx                     # space step
 assert (Nx*dx == L)
+
+T = 0.404                      # duration of the simulation
+dt = 0.8*(dx**2/2)             # time step -- from stability condition
+Nt = int(T/dt)                 # numer of time steps
 
 
 # physical variables
 g = 0                      # gravitational acceleration  -- is ignored
 R = -0.1                   # speed of the press shift
-NR = 200                   # number of steps the press shifts
+NR = int(0.2/dt)           # number of steps the press shifts
 bc0 = 0                    # boundary condition at point 0
 
 
