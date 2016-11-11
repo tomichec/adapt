@@ -1,0 +1,365 @@
+\documentclass[compress]{beamer}% [handout][compress]
+
+% use handout option for one slide per page
+\mode<presentation>
+\usetheme{Frankfurt} 
+%regular LaTeX title/author info
+%\AtBeginSection[]{} % for optional outline or other recurrent slide
+
+\setbeamertemplate{footline}[frame number]
+
+\usecolortheme{seahorse}
+\definecolor{darkgreen}{rgb}{0,0.7,0}
+
+\setbeamerfont{caption}{size=\tiny}
+\beamertemplatenavigationsymbolsempty
+
+% \usepackage[percent]{overpic}
+\newcommand{\eqcolor}{blue} 
+\everymath{\color{\eqcolor}}
+
+\newenvironment{myalign}
+{\align\color{\eqcolor}}
+{
+  \nonumber
+  \endalign
+  \vspace{-1em}
+}
+
+\newenvironment{myitemize}
+{\itemize\itemsep 0mm}
+{\enditemize}
+
+% \let\myalign\align
+% \let\endmyalign\endalign
+% \def\myalign{\begingroup \myalign}
+% \def\endmyalign{\endmyalign \endgroup}
+
+% \usepackage{psfrag}
+% \input{psfrags.tex}
+
+% \input{./packages.tex} 
+% \input{./macros_TS.tex}
+\input{./nots.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% hyperlinks in the document
+\usepackage{hyperref}
+% https://tex.stackexchange.com/questions/823/remove-ugly-borders-around-clickable-cross-references-and-hyperlinks
+\hypersetup{
+    colorlinks,
+    linkcolor={red!80!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% https://tex.stackexchange.com/questions/135649/make-citemy-reference-show-name-and-year
+\usepackage{natbib}             % citations including name and year
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% http://tex.stackexchange.com/questions/33969/changing-font-size-of-selected-slides-in-beamer
+% \usepackage{lipsum} % lorem ipsum
+
+% \newcommand\Fontvi{\footnotesize\selectfont}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\institute{\footnotesize 
+  \includegraphics[width=0.3\linewidth]{exeLogo.pdf}  \\[1ex]
+  College of Engineering, Mathematics and Physical Sciences
+}
+
+\title{Research Meeting:\\ Carbon Fibre Consolidation}
+
+\author{ \textbf{\Large Tom\'a\v s Star\'y} \\ {\footnotesize\it advised by} \\[1ex] \textbf{\Large Tim Dodwell}
+}
+
+
+\date{
+\it  Fri 11 November 2016
+}
+
+\newcommand{\highlight}[1]{\boxed{#1}}
+
+\begin{document}
+ 
+% title page
+\frame{\titlepage}
+
+% outline
+\section[Outline]{}
+\frame{\tableofcontents}
+
+
+\section{Introduction}
+
+\subsection{Problem Definition}
+
+\begin{frame}[label=A]
+  \frametitle{Physical Considerations}
+  \begin{columns}
+    \begin{column}{0.4\textwidth}
+      \includegraphics{fibre_bed.pdf}
+    \end{column}
+    \begin{column}{0.6\textwidth}
+      \begin{itemize}
+      \item Controlled variables (in time $t$)
+        \begin{itemize}
+        \item $\temp$ -- temperature,
+        \item $F$ -- applied force, or
+        \item $u(L,t)$ -- boundary deformation.
+        %   \begin{myalign}
+        %   u(L,t) =
+        %   \begin{cases}
+        %     -Rt &\text{ for } t < \duration,\\
+        %     -R\duration &\text{ for } t > \duration.
+        %   \end{cases}
+        % \end{myalign}
+        \end{itemize}
+        
+      \item Resin flow through the pores
+        \begin{myalign}
+          \flow(x,t) = -\frac{\permeab(x)}{\viscos(t)} \press_{,x} 
+        \end{myalign}
+        \begin{itemize}
+        \item $\permeab$ -- permeability,
+        \item $\viscos$ -- resin viscosity,
+        \item $\press$ -- resin pressure, $\press_{,x}= \dd P/\dd x$.
+        \end{itemize}
+
+      \item Stress in the fibre bed
+        % 
+        \begin{myalign}
+          \stress(x,t) = \efstress(x,t) - \press(x,t)
+        \end{myalign}
+        % 
+        \begin{itemize}
+        \item $\efstress$ -- effective stress.
+        \end{itemize}        
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\subsection{Simplified Model}
+
+% \againframe{A}
+
+\begin{frame}
+  \frametitle{Fibre Bed Deformation}
+  \begin{columns}
+    \begin{column}{0.6\textwidth}
+      
+      Stress in the fibre bed
+      %
+      \begin{myalign}
+        \stress(x,t) = \efstress(x,t) - \press(x,t)
+      \end{myalign}
+
+      Assumptions:
+      
+      \begin{itemize}
+      \item small displacement: $\efstress =E u_{,x}$
+      \item static equilibrium: $\stress_{,x}= 0$
+      \end{itemize}
+
+      
+      Using relation 
+      $\press_{,x} =- \frac{\viscos(t)}{\permeab(x)} v$ and $\flow = -u_{,t}$
+      we get
+        \begin{myalign}
+          E u_{,xx} - \frac{\viscos(t)}{\permeab(x)} u_{,t}  =0
+        \end{myalign}
+        \begin{itemize}
+        \item $u_{,xx} =\dd^2 u/ \dd x^2$, 
+         $u_{,t} =\dd u/ \dd t$.
+        \end{itemize}
+
+    \end{column}
+    \begin{column}{0.4\linewidth}
+      When ${\viscos(t)},{\permeab(x)},E=1$
+      \includegraphics[width=1.0\linewidth]{fig/deform.eps}\\
+      \includegraphics[width=1.0\linewidth]{fig/flow.eps}
+      % \includegraphics{cure-temp-viscos.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\section{Resin Flow}
+
+\subsection{Fibre Bed Permeability}
+
+\begin{frame}
+  \frametitle{Fibre Bed Permeability}
+  \begin{columns}
+    \begin{column}{0.6\linewidth}
+      The equation of the flow
+      \begin{myalign}
+        \flow(x,t) = -\frac{\permeab(x)}{\viscos(t)} \press_{,x} .
+      \end{myalign}
+      Permeability by \citet{Dave1987b}
+      \begin{myalign}
+        \permeab(\vfrac) = \frac{r_f^2}{4\kozeny} \frac{(1-\vfrac)^3}{\vfrac^2} 
+      \end{myalign}
+      \begin{itemize}
+        \itemsep 0mm
+      % \item $r_f, \kozeny$ -- constants,
+      \item $r_f=4\ee{-3}$~mm -- radius of fibre,
+      \item $\kozeny=0.2$~1/s -- ``Kozeny'' constant, 
+      \item $\vfrac$ -- fibre volume fraction (FVF)
+        \begin{myalign}
+          \vfrac(\strain) = \frac{\vzero}{1+\strain(x)}
+        \end{myalign}
+        \begin{itemize}
+        \item $\vzero$ -- initial FVF,
+        \item $\strain(x)$ -- strain.
+        \end{itemize}
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.4\linewidth}
+      \includegraphics{permeab-vf.pdf}\\
+      \includegraphics{vf-strain.pdf}
+    \end{column}
+  \end{columns}
+  
+\end{frame}
+
+\subsection{Resin Viscosity}
+
+\begin{frame}
+  \frametitle{Resin Viscosity}
+  \begin{columns}
+    \begin{column}{0.6\linewidth}
+      Viscosity by \citet{Kenny1992}
+      \begin{myalign}
+        \viscos(\temp,\cure) =
+        \viscosinf \exp{\frac{E_\viscos }{R \temp}} \left(\frac{\curegel}{\curegel - \cure}\right)^{A+B\cure} 
+      \end{myalign}
+      \begin{itemize}
+        \itemsep 0mm
+        % \item $\viscosinf=3.45\ee{-10}$~Pa$\cdot$s, % -- viscosity asymptote
+        % \item $E_\viscos = 7.6536\ee{5}$~J/mol, % -- activation energy
+        % \item $R = 8.617$~eV/K --  universal gas constant,
+        % \item $\curegel = 0.47$ -- cure at  gelation,
+        % \item $A, B$ -- constants.
+      \item $\viscosinf,E_\viscos, R, A, B$ -- constants,
+      \item $\curegel = 0.47$ -- cure at gelation,
+      \item $\cure$ -- degree of cure
+        \begin{myalign}
+          \cure_{,t} = A_\cure \exp{-\frac{E_\cure }{R\temp}} \cure^m
+          (1-\cure)^n 
+        \end{myalign}
+        \begin{itemize}
+          % \item $A_\cure=1.53\ee{5}$~1/s
+          % \item $E_\cure=6.65\ee{4}$~J/mol
+          % \item $m=0.813$, $n=2.74$
+        \item $A_\cure, E_\cure, m, n$ constants.
+        \end{itemize}
+      \end{itemize}
+
+    \end{column}
+    \begin{column}{0.4\linewidth}
+      \includegraphics{viscosity-map.pdf}\\
+      \includegraphics{dcure-map.pdf}
+    \end{column}
+  \end{columns}
+  
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Resin Viscosity in Autoclave Processing}
+  Autoclave temperature protocol
+  \begin{itemize}
+  \item first $30$ minutes: from $\temp_0=30$\degree C to $\temp_f=107$\degree C,
+  \item next $30$ minutes to allow resin flow on $\temp_f$,
+  \item next $30$~minutes: from $\temp_f$ to $\temp_c=176$\degree C,
+  \item final $1$~hour on $\temp_c$ to complete resin cure.
+  \end{itemize}
+
+  \centering
+  \begin{tabular}{l@{\hspace{3em}}l}
+  \includegraphics{cure-temp-cure.pdf}&
+  \includegraphics{cure-temp-viscos.pdf}
+  \end{tabular}
+\end{frame}
+
+\section{Effective Stress}
+
+\begin{frame}
+  \frametitle{Effective stress}
+
+  \begin{columns}
+    \begin{column}{0.6\textwidth}
+      Effective stress by \citet{Gutowski1987}
+      \begin{myalign}
+        \efstress(\vfrac) = \spring
+        \frac{\frac{\vfrac}{\vzero} -1}{\left(\frac{1}{\vfrac} -\frac{1}{\vmax}\right)^4} 
+      \end{myalign}
+      \begin{itemize}
+      \item $\spring$ -- ``spring constant'',
+      \item $\vzero = 0.55$ -- initial FVF,
+      \item $\vmax = 0.68$ -- maximal FVF.
+      % \item Fibre volume fraction (FVF)
+      %   \begin{myalign}
+      %     \vfrac(\strain) = \frac{\vzero}{1+\strain(x)} 
+      %   \end{myalign}
+      %   \begin{itemize}
+      %   \item $\strain(x)$ -- strain.
+      %   \end{itemize}
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \includegraphics{stress-strain.pdf}
+      % \includegraphics{vf-strain.pdf}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\section{Conclusions}
+
+\begin{frame}
+  \frametitle{Conclusions}
+  Results
+  \begin{itemize}
+  \item finite difference model for resin flow,
+  \item fibre cure model,
+  \item description of relevant physics.
+  \end{itemize}
+
+  Further work
+  \begin{itemize}
+  \item fibre bed stiffening,
+  \item finite element method,
+  \item extending the code into 2D and 3D,
+  \item implementation in DUNE.
+  \item Your suggestions?
+  \end{itemize}
+\end{frame}
+
+% \againframe{A}
+
+% \begin{frame}
+  
+%     Darcy's law for a flow through porous medium
+%   \begin{myalign}
+%     v(x,t) = -\frac{\permeab(\vfrac)}{\viscos(\temp,\cure)} \press_{,x}
+%   \end{myalign}
+%   \begin{itemize}
+%   % \item $v$ -- velocity of the flow
+%   \item $\press_{,x}$ -- gradient of resin pressure ($\dd \press/\dd x$)
+%   \end{itemize}
+  
+% \end{frame}
+
+\bibliographystyle{apalike}
+\begin{frame}
+  \frametitle{References}
+  \bibliography{references}
+\end{frame}
+
+
+\end{document}

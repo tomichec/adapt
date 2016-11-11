@@ -1,0 +1,46 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\pagestyle {empty} % removes the page numbers
+
+\input{nots.tex}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows,calc,shapes,positioning}
+% old
+% \usetikzlibrary{arrows,calc,shapes,decorations.pathreplacing}
+
+% https://tex.stackexchange.com/questions/54252/minimum-height-in-split-rectangle
+% \def\mystrut{\vrule height 1.5cm depth 1.5cm width 0pt}
+
+\begin{document}
+\begin{tikzpicture}
+  [every node/.style={blue}]
+
+  \begin{scope}
+    [every node/.style={draw, rectangle split,
+    rectangle split parts=10,minimum width=1cm, thick}]
+  \node (R) at (2,4){
+    % \nodepart{two}
+    % \nodepart{three}
+    };
+  \end{scope}
+
+  \draw[<-, ultra thick,blue] ($(R.north)+(0,3pt)$) to node[left,midway]{$F(t)$} ++(0,1.5);
+
+  \node (temp) at ($(R.north)+(+30pt,+30pt)$) {$\temp(t)$};
+  \node (temp) at ($(R.north)+(-30pt,+0pt)$) {$u(L,t)$};
+  \node (parameters) at ($(R.south)+(+0pt,-20pt)$) {$\permeab(x),\viscos(t)$};
+  \node (pressure) at ($(R.west)+(-35pt,+0pt)$) {$\efstress(x,t),\press(x,t)$};
+  
+  \node (xL) at ($(R.north)+(+30pt,0)$) {$x=L$};
+  \node (x0) at ($(R.south)+(+30pt,0)$) {$x=0$};
+
+  % \node ()[left,midway]{$F$}
+    % \draw[decorate,decoration={brace,raise=6pt,amplitude=10pt}, thick]
+    % (R.north east)--(R.south east); 
+  \draw[->] ($(R.south)+(-30pt,0)$)  to 
+    node[left,midway]{$x$}++(0,1) ;    
+\end{tikzpicture}
+\end{document}
