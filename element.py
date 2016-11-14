@@ -1,6 +1,6 @@
 import numpy as np
 
-DEBUG = 1
+DEBUG = 0
 PLOT = 1
 
 import numpy as np

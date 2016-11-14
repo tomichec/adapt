@@ -8,3 +8,8 @@
 *.bbl
 *.blg
 *.out
+*.toc
+*.lot
+*.lof
+*.nav
+*.snm

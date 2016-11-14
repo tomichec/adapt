@@ -1,0 +1,14 @@
+
+all: stress-vf.pdf stress-strain.pdf vf-strain.pdf permeab-vf.pdf viscosity-map.pdf dcure-map.pdf cure-temp-cure.pdf  cure-temp-viscos.pdf
+
+# viscosity-cure.pdf dcure-cure.pdf
+
+%.tex: epstopdf.temp
+	echo "\\newcommand{\\figurefile}{$*.eps}" | cat - epstopdf.temp > $@
+
+%.dvi: %.tex %.eps
+	latex $<
+
+%.pdf: %.dvi
+	dvipdf $<
+	pdfcrop $@ $@

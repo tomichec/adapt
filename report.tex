@@ -3,6 +3,8 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
+\usepackage[left=3cm,right=3cm,top=2cm,bottom=2cm,asymmetric]{geometry}
+
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{xcolor}
@@ -12,7 +14,6 @@
 \usepackage{mathrsfs}
 \usepackage{amssymb}            % for mathfrak -- canonical font
 
-\usepackage[left=3cm,right=3cm,top=2cm,bottom=2cm,asymmetric]{geometry}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % hyperlinks in the document
 \usepackage{hyperref}
@@ -89,14 +90,43 @@
 
 \newcommand{\ie}{{\it i.e.\ }}
 
-\newcommand{\note}[1]{{\color{red}(#1)}}
+% \newcommand{\note}[1]{{\color{red}(#1)}}
+% \newcommand{\QM}{{\color{red}(?)}}
+
+\newcommand{\note}[1]{}
+\newcommand{\QM}{}
 \newcommand{\X}[1]{{\color{brown}\st#1} } % removed text
 \newcommand{\A}[1]{{\color{purple}#1}} % added text
-\newcommand{\QM}{{\color{red}(?)}}
 
 \input{nots.tex}
 
 \begin{document}
+
+%% -----------------------------------------------------------------
+%% LIST OF CONTENTS
+%% -----------------------------------------------------------------
+
+\tableofcontents
+
+%% -----------------------------------------------------------------
+%%  LIST OF TABLES, ILLUSTRATIONS, ETC. (IF ANY)
+%% -----------------------------------------------------------------
+
+\listoffigures
+\listoftables
+
+%% -----------------------------------------------------------------
+%% LIST OF ACCOMPANYING MATERIAL (IF ANY)
+%% -----------------------------------------------------------------
+
+%% -----------------------------------------------------------------
+%% DEFINITIONS; ABBREVIATIONS
+%% -----------------------------------------------------------------
+
+%% -----------------------------------------------------------------
+%% TEXT (DIVIDED INTO CHAPTERS, SECTIONS, ETC.)
+%% -----------------------------------------------------------------
+% \mainmatter % start numbering from 1 here -- ommitted due to regulation
 
 \section{Statement of the system}
 
@@ -296,7 +326,7 @@ $x=1$ at a position $0$. The solution is exact at the nods.
 
 \begin{figure}
   \centering
-  \includegraphics[width=1.0\textwidth]{fig/displacement.eps}
+  \includegraphics[width=1.0\textwidth]{displacement.eps}
   \caption{Dependence of the displacement on the position (x-axis) for
     a computation of eight degrees of freedom. Numerical results at
     the nodes (red dots) are linearly interpolated (red lines) and
@@ -362,7 +392,7 @@ different length.
 
 \begin{figure}
   \centering
-  \includegraphics[width=1.0\textwidth]{fig/element.eps}
+  \includegraphics[width=1.0\textwidth]{element.eps}
   \caption{Element wise construction of the stiffness matrix.}
   \label{fig:element}
 \end{figure}
@@ -392,11 +422,11 @@ subjected to pressure is opposed by the fluid pressure in the
 pores. Mathematicaly, this is described as
 %
 \begin{align}
-\stress = \efstress(x,t) - \press(x,t) \label{eq:flow-stress}
+\stress(x,t) = \efstress(x,t) - \press(x,t) \label{eq:flow-stress}
 \end{align}
 %
 where $\press(x,t)$ is the resin pressure and the effective stress
-$\efstress$ that are dependent both on the reference position $x$ and
+$\efstress(x,t)$ that are dependent both on the reference position $x$ and
 the time $t$. The effective stress is connected with the
 displacement by a constitutive law
 \begin{align}
@@ -430,14 +460,14 @@ So we obtain a boundary value problem
   = 0 , &&& u(0,t) = 0,\\\nonumber
         &&&u(L,t) =
             \begin{cases}
-              -Rt &\text{ for } t < T,\\
-              -RT &\text{ for } t > T.
+              -Rt &\text{ for } t < \duration,\\
+              -RT &\text{ for } t > \duration.
             \end{cases} 
 \end{align}
 %
 The boundary at the reference point $L$ is compressed by a press with
-a constant speed $R$ for in the first $T$ time units. Then the press
-is stoped at the possition reached after $T$.
+a constant speed $R$ for in the first $\duration$ time units. Then the press
+is stoped at the possition reached after $\duration$.
 
 %
 
@@ -447,27 +477,18 @@ is analogous to Ohm's law from the theory of electric circuits. The
 Darcy's law reads as
 %
 \begin{align}
-  v(x,t) = -\frac{K}{\mu} \press_{,x}. \label{eq:darcy}
+  \flow(x,t) = -\frac{\permeab(x)}{\viscos(\temp,\cure)} \press_{,x}. \label{eq:darcy}
 \end{align}
-where the $v(x,t)$ is the velocity of the flow, $K$ is a fibre bed
+where the $\flow(x,t)$ is the velocity of the flow, $\permeab$ is a fibre bed
 permeability (due to the size of the pores),
 %
 %
-$\mu$ is the resin viscosity.
-% , and $\rdense$ is the density of the resin.
+$\viscos$ is a resin viscosity (dependent on temperature $\temp$ and
+degree of cure of the resin $\cure$).  For simplicity, let's consider
+a case where $\permeab/\viscos=1$.
 %
-% \note{later $K =K(t)$ will depend on time as the pores go gradually
-%   copressed.  For small deformations this effect is neglected. Also,
-%   $\mu$ will depend on the resin temperature and the state of
-%   cure of the resin.}
-%
-For simplicity, let's consider a case where $K/\mu=1$.
-% , so the
-% equation \eqref{eq:darcy} gives $v(x,t) = -(\press + \rdense g x)$. 
-%
-
 The velocity of the flow constrains the position of the fibre bed,
-hence by linking the definition of velocity $v = - u_{,t}$ (recall the
+hence by linking the definition of velocity $\flow = - u_{,t}$ (recall the
 notation $u_{,t} = \partial u/\partial t$) with the Darcy's law, we
 can write an inital value problem for the internal points of the
 material as
@@ -477,7 +498,7 @@ material as
 \end{align}
 
 
-\subsection{Finite Differences Solution}
+\subsection{Finite Differences Algorithm}
 
 We write the boundary \eqref{eq:bvp-flow} and initial
 \eqref{eq:velocity} value problem in a simplified form, where the
@@ -485,14 +506,16 @@ physical units are ignored, as follows
 %
 \begin{align}
   \label{eq:heat}
-  u_{,xx}(x,t) - u_{,t}(x,t) + f(x) 
+  u_{,xx}(x,t) - D u_{,t}(x,t) + f(x) 
   =& 0 ,        &&u(x,0) = 0, u(L,t) =
             \begin{cases}
-              -Rt &\text{ for } t < T,\\
-              -RT &\text{ for } t > T,
+              -Rt &\text{ for } t < \duration,\\
+              -RT &\text{ for } t > \duration,
             \end{cases}\\\nonumber
  &&& u(0,t) = 0.
 \end{align}
+%
+where in this subsection we consider a simplified problem where $D=1$.
 
 The simplest method for solving this system is a finite difference
 method. This use time and space discretisation as
@@ -527,22 +550,48 @@ numerical algorithm as
   % \frac{\disp{i}{j+1} - \disp{i}{j}}{\dt}  
   % + f(x_i) 
   % = 0 \\
-\disp{i}{j+1}  =   \disp{i}{j} + \dt\left(\frac{\disp{i+1}{j} - 2\disp{i}{j} + \disp{i-1}{j}}{\dx^2}   + f(x_i) \right). \label{eq:findiff-alg}
+\disp{i}{j+1}  =   \disp{i}{j} + \dt\left(\frac{\disp{i+1}{j} - 2\disp{i}{j} + \disp{i-1}{j}}{\dx^2}   + f(x_i) \right), \label{eq:findiff-alg}
  % +\bigO{\dx^2, \dt}.
 \end{align}
+%
+which has associated error of
+\begin{align}
+  \epsilon_u =\bigO{\dt} + \bigO{\dx^2}.
+\end{align}
+
+This numerical method is stable if
+\begin{align}
+  \frac{\max(D)\dt}{\dx^2} < \frac{1}{2},
+\end{align}
+which is described in detail in \cite{Strikwerda2004}.
+%
+\note{derivation from page 47}
+%
+Using this relation we can choose the space or time step as
+%
+\begin{align}
+  % \frac{\max(D)\dt}{\dx^2} < \frac{1}{2}, \\
+  \sqrt{2\max(D)\dt} < \dx, \\
+  \dt < \frac{\dx^2}{2\max(D)}.
+\end{align}
+
+\subsection{Implementation of Simplified Flow Problem}
 
 \begin{figure}
   \centering
-  \begin{tabular}{l@{}l}
-    \includegraphics[width=0.5\linewidth]{fig/flow.eps}&
-                                                     \includegraphics[width=0.5\linewidth]{fig/surf.eps}\\
-    (a)&(b)
+  \begin{tabular}{l@{}l@{}l}
+    \includegraphics[width=0.33\linewidth]{deform.eps}&    \includegraphics[width=0.33\linewidth]{flow.eps}&
+                                                     \includegraphics[width=0.34\linewidth]{surf.eps}\\
+    (a)&(b)&(c)
   \end{tabular}
   \caption{Finite difference solution of equation
-    \eqref{eq:heat}. Panel (a) shows the dependence of the
+    \eqref{eq:heat}. Panel (a) shows the dependence of the deformation
+    of the fibre bed on time at the boundaries $x=0$ (blue line) and
+    $x=1$ (red line) and in the interior points $x=0.2$ (magenta line)
+    and $x=0.5$ (green line) (b) shows the dependence of the
     displacement on the possition in initial state (blue), at $t=0.1$
     (magenta), at $t=0.2$ (green) and at the end of the simulation
-    $t=0.4$.  Panel (b) shows the time dependence (horizontal line) of
+    $t=0.4$.  Panel (c) shows the time dependence (horizontal line) of
     the deformation (colour-coded, left bar) in the reference frame.}
   \label{fig:findiff-heat}
 \end{figure}
@@ -555,9 +604,12 @@ conditions $\disp{i}{0} = 0$. The bottom boundary is fixed at
 $\disp{0}{t} = 0$, while the top boundary move with a speed $R=1$ such
 that $\disp{N_x}{j} = j \dt R$.
 
+The implementation of the finite difference code in \python\ is shown
+below.
+%
 \lstinputlisting[language=python, style=mystyle, breaklines=true]{findiff.py}
 
-\subsection{Physical units}
+\subsection{Fibre Consolidation Model}
 
 The goal of the previous text was to develop a simple toy example of a
 type of equations describing the system. In the process we have ignored
@@ -577,8 +629,8 @@ formula shows a good agreement with experiments \citet{Gutowski1987},
 \ie it is a heuristic model
 % 
 \begin{align}
-  \efstress = A_s
-  \frac{\frac{\vfrac}{V_0} -1}{\left(\frac{1}{\vfrac} -\frac{1}{V_a}\right)^4}, \label{eq:stress-nonlin}
+  \efstress = \spring
+  \frac{\frac{\vfrac}{\vzero} -1}{\left(\frac{1}{\vfrac} -\frac{1}{\vmax}\right)^4}, \label{eq:stress-nonlin}
 \end{align}
 %
 where $A_s$ is so-called spring constant\note{reference for the expression of spring constant? In the \citet{Gutowski1987} only $A_s$ is specified.},
@@ -590,12 +642,14 @@ where $A_s$ is so-called spring constant\note{reference for the expression of sp
 fitted to experimental data and their values are specified in
 \tabref{tab:phys-const}.
 %
-The fibre volume fraction $V_0$, and $V_a$ represents the ratio
+The fibre volume fraction $\vzero$, and $\vmax$ represents the ratio
 between the total volume and the fibre volume at the initial, maximal
 packing respectively. The fibre volume fraction is found as
 %
+\note{reproduce the derivation of this formula from  Hubert thesis}
+%
 \begin{align}
-  \vfrac = \frac{V_0}{1+\strain} \label{eq:fibre-volume}
+  \vfrac(\strain) = \frac{\vzero}{1+\strain(x)} \label{eq:fibre-volume}
 \end{align}
 %
 where $\strain =  u_{,x}$.
@@ -611,14 +665,16 @@ where $\strain =  u_{,x}$.
 
 In the Darcy's law in equation \eqref{eq:darcy} we assumed the ratio
 between fibre bed permeability and the viscosity of the resin
-$K/\mu=1$. However, the permeability will depend on the volume
-fraction of the resin as
+$\permeab/\viscos=1$. However, the permeability will depend on the volume
+fraction of the resin. \citet{Dave1987b} suggested a model as
+%
+\note{I didn't find the model in their paper, this expression is given in \citet{Hubert1999}}
 %
 \begin{align}
-  K = \frac{r_f^2}{4k} \frac{(1-\vfrac)^3}{\vfrac^2} \label{eq:permeability}
+  \permeab = \frac{r_f^2}{4\kozeny} \frac{(1-\vfrac)^3}{\vfrac^2} \label{eq:permeability}
 \end{align}
 %
-where $r_f$ specifies the fibre radius and $k$ is so called Kozeny
+where $r_f$ specifies the fibre radius and $\kozeny$ is so called Kozeny
 constant (see \tabref{tab:phys-const}). Also, the viscosity is a
 function of other variables, such as temperature and the degree of
 cure of the resin.
@@ -641,18 +697,18 @@ cure of the resin.
 %
 Other assumption which we did the Darcy's law in equation
 \eqref{eq:darcy} regards the viscosity of the resin.  The viscosity
-which should be substituted to \eqref{eq:darcy} is given by
-\note{where does it come from?}
+which should be substituted to \eqref{eq:darcy} was suggested by  \citet{Kenny1992}
+as
 %
 \begin{align}
-  \mu = % g(\vfrac)
-  \muinf \exp{\frac{E_\mu }{R T}} \left(\frac{\curegel}{\curegel - \cure}\right)^{A+B\cure} \label{eq:viscosity}
+  \viscos(\temp,\cure) =
+  \viscosinf \exp{\frac{E_\viscos }{R \temp}} \left(\frac{\curegel}{\curegel - \cure}\right)^{A+B\cure} \label{eq:viscosity}
 \end{align}
 %
-where the constants ($\muinf$, $\curegel$, $R$, $E_\mu$, $A$ and
+where the constants ($\viscosinf$, $\curegel$, $R$, $E_\viscos$, $A$ and
 $B$) are explained in \tabref{tab:phys-const}, % $g(\vfrac)$ accounts for
 % low viscosity of the air \note{how to call it? what it means?},
-$T$ is the temperature in Kelvins, which is controlled in the
+$\temp$ is the temperature in Kelvins, which is controlled in the
 experiment, $\cure$ is the degree of cure that will be discussed
 later and which takes values in the interval $[0,1]$.
 
@@ -720,11 +776,11 @@ when heated from $10$ to $100$\degree C.
 The resin cure is described by a differential equation in a form
 %
 \begin{align}
-  \cure_{,t} =  A_\cure \exp{-\frac{E_\cure }{RT}} \cure^m (1-\cure)^n \label{eq:cure}
+  \cure_{,t} =  A_\cure \exp{-\frac{E_\cure }{R\temp}} \cure^m (1-\cure)^n \label{eq:cure}
 \end{align}
 %
 where the constants ($A_\cure$, $E_\cure$, $m$, $n$ and $R$) are
-given in the table, $T$ is the temperature as mentioned above.
+given in the table, $\temp$ is the temperature as mentioned above.
 
 This model has two equilibrium points $\cure_{,t}=0$ the $\cure = 0$ is an unstable equilibrium and $\cure=1$ is a stable equilibrium. \figref{fig:cure} shows rate of cure of the resin as a dependence on the temperature (panel a) and cure (panel b). The cure takes strictly positive values, as is also evident from expression \eqref{eq:cure}. 
 
@@ -745,11 +801,45 @@ The dependency of the rate of cure on the degree of cure has a maximum at $\sim 
   \label{fig:cure}
 \end{figure}
 
+\begin{table}[t]
+  \centering
+  \begin{tabular}{llll}
+    \toprule
+    physical meaning & notation & value & units \\
+    \midrule
+    Young's modulus               & $E_f$        & $230$         & GPa            \\ 
+    data fitting constant         & $\beta$      & $350$         & (unitless)            \\
+    initial fibre volume fraction & $\vzero$        & $0.55$        & (unitless)     \\
+    maximum fibre volume fraction & $\vmax$        & $0.68$        & (unitless)     \\
+    \midrule
+    radius of fibre               & $r_f$        & $4\ee{-3}$    & mm             \\
+    Kozeny constant              & $\kozeny$          & $0.2$         & 1/s \QM            \\
+    \midrule
+    viscosity asymptote     & $\viscosinf$ & $3.45\ee{-10}$ & Pa$\cdot$s \QM \\ 
+    activation energy \note{of what?}    & $E_\viscos$ & $7.6536\ee{5}$& J/mol\\
+    universal gas constant        & $R$          & $8.617$       & eV/K           \\
+    degree of cure at  gelation   & $\curegel$   & $0.47$        & (unitless)            \\ 
+    data fitting constant        &$A$ & $3.8$&(unitless)\\
+    data fitting constant        &$B$ & $2.5$&(unitless)\\
+    \midrule
+     data fitting constant             &$A_\cure$&$1.53\ee{5}$& 1/s \\
+     activation energy             &$E_\cure$& $6.65\ee{4}$  & J/mol          \\
+     data fitting constant             &$m$&$0.813$& (unitless) \\
+     data fitting constant             &$n$&$2.74$& (unitless) \\
+    \bottomrule
+  \end{tabular}
+  \caption{Physical constants. The parts separated by line explain variable from different equations, the first part corresponds to stress as given in \eqref{eq:stress-nonlin}, the second part corresponds to permeability as given in \eqref{eq:permeability}, the third part corresponds to viscosity as given in \eqref{eq:viscosity}, the fourth part corresponds to cure as given in \eqref{eq:cure}. If the variable is used in more than one equation, it is explained at a place of its first occurrence.}
+  \label{tab:phys-const}
+\end{table}
+
+
+\subsection{Procedure of Fabrication}
+
 The resin is cured in a chamber of high pressure and temperature
 called autoclave. During this procedure a specific temperature
-protocol is followed.  The initial temperature $T_0 = 30$\degree C is
+protocol is followed.  The initial temperature $\temp_0 = 30$\degree C is
 increased during $30$ minutes up to the temperature of
-$T_f = 107.222$\degree C at which value it stays for another half an
+$\temp_f = 107.222$\degree C at which value it stays for another half an
 hour to allow the resin being expulsed from the fibre bed. After the
 first hour of the procedure ($t=3600$~s) the temperature undergoes a
 second increase for a duration of $30$ minutes up to the temperature
@@ -758,7 +848,15 @@ hour. \note{check the duration} The purpose of the increased
 temperature is to elicit the cure of the resin.
 
 The simulation of the autoclave cure \eqref{eq:cure} was done using
-forward Euler solver and time step size of $\dt = 60$~s.
+forward Euler method
+%
+\begin{align}
+  \cure_{i+1} =    \cure_i + \dt \left[A_\cure \exp{-\frac{E_\cure }{R\temp_i}} \cure_i^m (1-\cure_i)^n\right], \label{eq:cure-fe}
+\end{align}
+%
+where $\cure_i \approx \cure(t_i)$ and $\cure(t_0)=\ee{-3}$. The
+time step size was choosen as $\dt = 60$~s.
+%
 \figref{fig:cure-exp}(a) shows the time evolution of the cure of the
 resin during a simulation of autoclave temperature protocol, which is
 shown in green lines on right axis of (b).  Panel (a) shows that the
@@ -792,58 +890,62 @@ and beyond which the viscosity model is no longer valid.
 \end{figure}
 
 
+\subsection{Using Viscosity Model}
+
+We use \eqref{eq:darcy} for a generic permeability and viscosity
+values and update \eqref{eq:velocity} as
+%
+\begin{align}
+ \press_{,x} =\frac{\viscos(\temp,\cure)}{\permeab}    u_{,t}(x,t) ,  \label{eq:darcy-link}
+\end{align}
+%
+Expression \eqref{eq:darcy-link} is substituted to boundary value problem \eqref{eq:bvp-flow}
+so we obtain
+%
+\begin{align}
+   u_{,xx}(x,t) - \frac{\viscos(t)}{\permeab(x)}    u_{,t}(x,t) + f(x) =0.
+\end{align}
+%
+Again, we solve this model using the finite difference method. This
+requires using the formulas \eqref{eq:fin-diff} to get a numerical scheme as
+%
+\begin{align}
+  \disp{i}{j+1}  =   \disp{i}{j} + \dt\frac{\permeab}{\viscos_i}\left(\frac{\disp{i+1}{j} - 2\disp{i}{j} + \disp{i-1}{j}}{\dx^2}   + f(x_i) \right). 
+\end{align}
+%
+where viscosity $\viscos_i = \viscos(\temp(t_i),\cure_i)$ is obtained
+using expression \eqref{eq:viscosity} and the cure $\cure_i$ is
+approximated using equation \eqref{eq:cure-fe}. The permeability
+$K=3.56\ee{-6}$ which corresponds to the fibre volume fraction $\vfrac = 0.6$.
 
 
-\begin{table}
-  \centering
-  \begin{tabular}{llll}
-    \toprule
-    physical meaning & notation & value & units \\
-    \midrule
-    Young's modulus               & $E_f$        & $230$         & GPa            \\ 
-    data fitting constant         & $\beta$      & $350$         & (unitless)            \\
-    initial fibre volume fraction & $V_0$        & $0.55$        & (unitless)     \\
-    maximum fibre volume fraction & $V_a$        & $0.68$        & (unitless)     \\
-    \midrule
-    radius of fibre               & $r_f$        & $4\ee{-3}$    & mm             \\
-    Kozeny constant              & $k$          & $0.2$         & 1/s \QM            \\
-    \midrule
-    viscosity asymptote     & $\muinf$ & $3.45\ee{-10}$ & Pa$\cdot$s \QM \\ 
-    activation energy \note{of what?}    & $E_\mu$ & $7.6536\ee{5}$& J/mol\\
-    universal gas constant        & $R$          & $8.617$       & eV/K           \\
-    degree of cure at  gelation   & $\curegel$   & $0.47$        & (unitless)            \\ 
-    data fitting constant        &$A$ & $3.8$&(unitless)\\
-    data fitting constant        &$B$ & $2.5$&(unitless)\\
-    \midrule
-     data fitting constant             &$A_\cure$&$1.53\ee{5}$& 1/s \\
-     activation energy             &$E_\cure$& $6.65\ee{4}$  & J/mol          \\
-     data fitting constant             &$m$&$0.813$& (unitless) \\
-     data fitting constant             &$n$&$2.74$& (unitless) \\
-    \bottomrule
-  \end{tabular}
-  \caption{Physical constants. The parts separated by line explain variable from different equations, the first part corresponds to stress as given in \eqref{eq:stress-nonlin}, the second part corresponds to permeability as given in \eqref{eq:permeability}, the third part corresponds to viscosity as given in \eqref{eq:viscosity}, the fourth part corresponds to cure as given in \eqref{eq:cure}. If the variable is used in more than one equation, it is explained at a place of its first occurrence.}
-  \label{tab:phys-const}
-\end{table}
-
-\subsection{Implementation of Physical model}
+\subsection{TODO}
 
 Here we describe the implementation of the models including the
 physical units. To simplify the process, the implementation will be
 done in several steps as follows
 %
 \begin{enumerate}
-\item constant fibre volume fraction of $\vfrac = 0.6$, temperature $T=\QM$, and degree of cure $\cure$; this gives a linear model with appropriate physical units, \label{en:all-const}
+\item constant fibre volume fraction of $\vfrac = 0.6$, temperature $\temp=\QM$, and degree of cure $\cure$; this gives a linear model with appropriate physical units, \label{en:all-const}
 \item fibre volume fraction dependent on the deformation according to formula \eqref{eq:fibre-volume}, the remaining variables as in previous case,
-\item ramped temperature $T_{,t} = q$ which leads to variable degree of cure $\cure$.
+\item ramped temperature $\temp_{,t} = q$ which leads to variable degree of cure $\cure$.
 \end{enumerate}
 
 Solving the point \ref{en:all-const} we write down the model using the physical units.
 
 
+%% -----------------------------------------------------------------
+%% GLOSSARY
+%% -----------------------------------------------------------------
 
-
+%% -----------------------------------------------------------------
+%% BIBLIOGRAPHY
+%% -----------------------------------------------------------------
 \bibliographystyle{apalike}
 \bibliography{references}
 
+%% -----------------------------------------------------------------
+%% INDEX (IF ANY)
+%% -----------------------------------------------------------------
 
 \end{document}

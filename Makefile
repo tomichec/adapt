@@ -15,13 +15,16 @@
 
 # all: galerkin.out finel.pdf
 
-all: consolidation.pdf permeab.pdf viscosity.pdf dcure.pdf cure.pdf
+all: consolidation.pdf permeab.pdf viscosity.pdf dcure.pdf cure.pdf fibre_bed.pdf galerkin.out element.out findiff.out
 
 # also creates a plot
-# %.out: %.py
-# 	python3 $< > $@
+%.out: %.py
+	python3 $< > $@
 
-# %.pdf: %.tex galerkin.out
+# report.pdf: notes.tex galerkin.out
+# 	pdflatex $<
+
+# slides.pdf: slides.tex
 # 	pdflatex $<
 
 # %.pdf: %.tex $(PLT)
@@ -42,14 +45,15 @@ dcure.dvi: dcure.tex dcure-temp.eps dcure-cure.eps dcure-map.eps
 cure.dvi: cure.tex cure-temp-cure.eps cure-temp-viscos.eps
 	latex $<
 
+fibre_bed.dvi: fibre_bed.tex
+	latex $<
+
 cure.dat: cure.py
 	python3 $< > $@
-
-
 
 %.pdf: %.dvi
 	dvipdf $*.dvi
 	pdfcrop $@ $@
 
-%.eps: %.plt common.plt consolidation.gpm
+%.eps: %.plt common.plt consolidation.gpm cure.dat
 	gnuplot $< > $@

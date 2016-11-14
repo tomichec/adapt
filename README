@@ -1,0 +1,17 @@
+This is a git repository of my notes. 
+
+To compile run:
+
+make -j4
+make -f Makefile-slides -j4
+
+pdflatex report.tex
+pdflatex slides.tex
+bibtex report.aux
+bibtex slides.aux
+pdflatex slides.tex
+pdflatex report.tex
+
+Prerequisites:
+
+autotools (make), gnuplot, texlive (latex, pdflatex), python3 (numpy, matplotlib)

@@ -8,7 +8,9 @@
 
 \+{\degree}{$^\circ$}
 \+{\dd}{\mathrm{d}}
+\1{\ddt}{\frac{\dd#1}{\dd t}}
 \+{\pd}{\partial}
+
 \+{\uuh}{u^h}
 \+{\ggh}{g^h}
 \+{\vvh}{v^h}
@@ -39,18 +41,27 @@
 \+{\strain}{\varepsilon}       % strain
 \+{\rdense}{\rho_r}             % resin density
 
-\+{\dx}{k}                      % space step
-\+{\dt}{h}                      % time step
+\+{\dx}{\Delta_x}                      % space step
+\+{\dt}{\Delta_t}                      % time step
 \1{\bigO}{\mathcal{O}(#1)}      % big O notation
 \2{\disp}{u_{#1}^{#2}}          % shorthand for u
 
 \1{\ee}{\cdot 10^{#1}}          % times 10^x -- engineering notation
 
 \+{\vfrac}{V_f}                 % fibre volume fraction
+\+{\vzero}{V_0}                 % initial fibre volume fraction
+\+{\vmax}{V_a}                  % maximal fibre volume fraction
 \+{\permeab}{K}                 % permeability
+\+{\kozeny}{k}                  % Kozeny constant
 \+{\viscos}{\mu}                % viscosity
 \+{\cure}{\alpha}               % cure
 \+{\curegel}{\cure_g}          % cure gelation point
 \+{\temp}{T}                    % temperature
 
-\+{\muinf}{\mu_\infty} % theoretical viscosity at infinite temperature and no cure
+\+{\viscosinf}{\mu_\infty} % theoretical viscosity at infinite temperature and no cure
+
+\+{\spring}{A_s}                % spring constant
+
+\+{\flow}{v}                    %flow through the fibre bed
+
+\+{\duration}{D}                    % duration of the press
