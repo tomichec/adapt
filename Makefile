@@ -15,7 +15,7 @@
 
 # all: galerkin.out finel.pdf
 
-all: consolidation.pdf permeab.pdf viscosity.pdf dcure.pdf cure.pdf fibre_bed.pdf galerkin.out element.out findiff.out
+all: consolidation.pdf permeab.pdf viscosity.pdf dcure.pdf cure.pdf fibre_bed.pdf galerkin.out element.out findiff.out cons_viscos.mp4
 
 # also creates a plot
 %.out: %.py
@@ -48,6 +48,9 @@ cure.dvi: cure.tex cure-temp-cure.eps cure-temp-viscos.eps
 fibre_bed.dvi: fibre_bed.tex
 	latex $<
 
+heat.dvi: heat.tex
+	latex $<
+
 cure.dat: cure.py
 	python3 $< > $@
 
@@ -57,3 +60,6 @@ cure.dat: cure.py
 
 %.eps: %.plt common.plt consolidation.gpm cure.dat
 	gnuplot $< > $@
+
+%.mp4: %/
+	ffmpeg -framerate 4 -i $*/movie%03d.png -c:v libx264 -r 30 -pix_fmt yuv420p $@

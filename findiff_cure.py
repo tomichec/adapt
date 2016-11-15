@@ -13,7 +13,7 @@ def press_loc(time):
 
     # temperatures
     Binit = -0
-    Bflow = -0.0001
+    Bflow = -0.001
 
     time1 = 30*60
     time2 = 60*60
@@ -147,8 +147,8 @@ for i in range(Nt):
     plt.legend(loc='lower left',frameon=False)
     plt.xlabel("reference frame $X$")
     plt.ylabel("displacement $u$")
-    plt.ylim([-0.007,0.0001])
-    plt.savefig("test/movie%03d.png" % i)
+    plt.ylim([-0.002,0.0001])
+    plt.savefig("cons_viscos/movie%03d.png" % i)
     plt.cla()
 
 
@@ -162,4 +162,3 @@ for i in range(Nt):
 # for ii in range(360):
 #     ax.view_init(elev=10., azim=ii)
 #     plt.savefig("test/movie%d.png" % ii)
-
