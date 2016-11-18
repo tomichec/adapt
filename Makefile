@@ -15,10 +15,13 @@
 
 # all: galerkin.out finel.pdf
 
-all: consolidation.pdf permeab.pdf viscosity.pdf dcure.pdf cure.pdf fibre_bed.pdf galerkin.out element.out findiff.out cons_viscos.mp4
+all: consolidation.pdf permeab.pdf viscosity.pdf dcure.pdf cure.pdf fibre_bed.pdf galerkin.out element.out findiff.dat cons_viscos.mp4
 
 # also creates a plot
 %.out: %.py
+	python3 $< > $@
+
+%.dat: %.py
 	python3 $< > $@
 
 # report.pdf: notes.tex galerkin.out
@@ -50,9 +53,6 @@ fibre_bed.dvi: fibre_bed.tex
 
 heat.dvi: heat.tex
 	latex $<
-
-cure.dat: cure.py
-	python3 $< > $@
 
 %.pdf: %.dvi
 	dvipdf $*.dvi
