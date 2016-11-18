@@ -58,6 +58,28 @@ def ramp_temp(time):
         return Tcure
     else:
         return Tcure
+
+def press_loc(time):
+    """ gives the possition of the press as a function of 'time' --  press protocol"""
+
+    # temperatures
+    Binit = -0
+    Bflow = -0.001
+
+    time1 = 30*60
+    time2 = 60*60
+    time3 = 120*60
+    
+    if (time >= 0 and time < time1):
+        return 0
+    elif (time >= time1 and time < time2):
+        return (Bflow-Binit)/(time2-time1) * (time-time1) + Binit
+    elif (time >= time2 and time < time3):
+        return Bflow
+    else:
+        return Bflow
+
+
     
 if __name__ == '__main__':
 

@@ -46,9 +46,9 @@ for j in range(0,Nt-1):
 # print the results
 
 # headers
-print("time",end="")
+print('000',end="")
 for x in X:
-    print("\t", x, end="")
+    print('\t%.3f'% x, end="")
 print()
 
 # data
