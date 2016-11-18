@@ -90,11 +90,11 @@
 
 \newcommand{\ie}{{\it i.e.\ }}
 
-% \newcommand{\note}[1]{{\color{red}(#1)}}
-% \newcommand{\QM}{{\color{red}(?)}}
+\newcommand{\note}[1]{{\color{red}(#1)}}
+\newcommand{\QM}{{\color{red}(?)}}
 
-\newcommand{\note}[1]{}
-\newcommand{\QM}{}
+% \newcommand{\note}[1]{}
+% \newcommand{\QM}{}
 \newcommand{\X}[1]{{\color{brown}\st#1} } % removed text
 \newcommand{\A}[1]{{\color{purple}#1}} % added text
 
@@ -579,11 +579,7 @@ Using this relation we can choose the space or time step as
 
 \begin{figure}
   \centering
-  \begin{tabular}{l@{}l@{}l}
-    \includegraphics[width=0.33\linewidth]{deform.eps}&    \includegraphics[width=0.33\linewidth]{flow.eps}&
-                                                     \includegraphics[width=0.34\linewidth]{surf.eps}\\
-    (a)&(b)&(c)
-  \end{tabular}
+  \includegraphics[width=1.0\linewidth]{heat.pdf}
   \caption{Finite difference solution of equation
     \eqref{eq:heat}. Panel (a) shows the dependence of the deformation
     of the fibre bed on time at the boundaries $x=0$ (blue line) and
@@ -629,11 +625,14 @@ formula shows a good agreement with experiments \citet{Gutowski1987},
 \ie it is a heuristic model
 % 
 \begin{align}
-  \efstress = \spring
-  \frac{\frac{\vfrac}{\vzero} -1}{\left(\frac{1}{\vfrac} -\frac{1}{\vmax}\right)^4}, \label{eq:stress-nonlin}
+  \efstress(x,t) = \spring
+  \frac{\frac{\vfrac(x,t)}{\vzero} -1}{\left(\frac{1}{\vfrac(x,t)} -\frac{1}{\vmax}\right)^4}, \label{eq:stress-nonlin}
 \end{align}
 %
-where $A_s$ is so-called spring constant\note{reference for the expression of spring constant? In the \citet{Gutowski1987} only $A_s$ is specified.},
+where $\vzero = \vfrac(x,t_0)$ \note{which is assumed to be constant
+  throughout the space $x$}, and $A_s$ is so-called spring
+constant\note{reference for the expression of spring constant? In the
+  \citet{Gutowski1987} only $A_s$ is specified.},
 %
 \begin{align}
   A_s = \frac{3\pi E_f}{\beta^4},
@@ -644,12 +643,37 @@ fitted to experimental data and their values are specified in
 %
 The fibre volume fraction $\vzero$, and $\vmax$ represents the ratio
 between the total volume and the fibre volume at the initial, maximal
-packing respectively. The fibre volume fraction is found as
+packing respectively. The fibre volume fraction is expressed as
+\begin{align}
+  \vfrac(x,t) = \frac{v_f(x,t)}{v_c(x,t)}
+\end{align}
 %
-\note{reproduce the derivation of this formula from  Hubert thesis}
+where $v_c$ is the volume of the fibre in corresponding volume of
+composite $v_f$. As the fibre volume is assumed to remain constant,
+which can be expressed as
+%
+\note{is this assmuption reasonable? What about the compression of the fibre?}
 %
 \begin{align}
-  \vfrac(\strain) = \frac{\vzero}{1+\strain(x)} \label{eq:fibre-volume}
+  v_f(x,t) = \vzero v_{c0}. \label{eq:fibre-fraction}
+\end{align}
+where $\vzero = \vfrac(x,t_0)$ and $v_{c0} = v_c(x,t_0)$.
+%
+At a time $t$ volumetric strain in the element is defined as
+\begin{align}
+  \strain_V(x,t) = \frac{v_c(x,t) - v_{c0}}{v_{c0}}, \label{eq:volumetric-strain}
+\end{align}
+which gives
+%
+\begin{align}
+{v_{c0}}= \frac{v_c(x,t) }{\strain_V(x,t) + 1}. \label{eq:initial-volume}
+\end{align}
+
+Substituting \eqref{eq:initial-volume} into \eqref{eq:fibre-fraction}
+and then into \eqref{eq:volumetric-strain} yields
+%
+\begin{align}
+  \vfrac(x,t) = \frac{\vzero}{1+\strain(x,t)}, \label{eq:fibre-volume}
 \end{align}
 %
 where $\strain =  u_{,x}$.
@@ -892,11 +916,16 @@ and beyond which the viscosity model is no longer valid.
 
 \subsection{Using Viscosity Model}
 
+
+Implementing the viscosity model into the model of the heat equation
+is rather straight forward, as the viscosity is constant throughout
+the sample and hence decoupled spatialy. 
+%
 We use \eqref{eq:darcy} for a generic permeability and viscosity
 values and update \eqref{eq:velocity} as
 %
 \begin{align}
- \press_{,x} =\frac{\viscos(\temp,\cure)}{\permeab}    u_{,t}(x,t) ,  \label{eq:darcy-link}
+ \press_{,x} =\frac{\viscos(t)}{\permeab(x)}    u_{,t}(x,t) ,  \label{eq:darcy-link}
 \end{align}
 %
 Expression \eqref{eq:darcy-link} is substituted to boundary value problem \eqref{eq:bvp-flow}
@@ -910,13 +939,100 @@ Again, we solve this model using the finite difference method. This
 requires using the formulas \eqref{eq:fin-diff} to get a numerical scheme as
 %
 \begin{align}
-  \disp{i}{j+1}  =   \disp{i}{j} + \dt\frac{\permeab}{\viscos_i}\left(\frac{\disp{i+1}{j} - 2\disp{i}{j} + \disp{i-1}{j}}{\dx^2}   + f(x_i) \right). 
+  \disp{i}{j+1}  =   \disp{i}{j} + \dt\frac{\permeab(x)}{\viscos_i}\left(\frac{\disp{i+1}{j} - 2\disp{i}{j} + \disp{i-1}{j}}{\dx^2}   + f(x_i) \right). 
 \end{align}
 %
 where viscosity $\viscos_i = \viscos(\temp(t_i),\cure_i)$ is obtained
 using expression \eqref{eq:viscosity} and the cure $\cure_i$ is
 approximated using equation \eqref{eq:cure-fe}. The permeability
 $K=3.56\ee{-6}$ which corresponds to the fibre volume fraction $\vfrac = 0.6$.
+
+\subsection{Fibre Volume Fraction and Effects on Permeability and Stiffness}
+
+Considering the case of static equilibrium $\stress_{,x}(x,t)=0$, and
+using \eqref{eq:flow-stress}, \eqref{eq:darcy-link} and assuming that
+the Young's modulus $\young = 1$ we can write
+%
+\begin{align}
+  0 = \efstress_{,x} - \frac{\viscos(t)}{\permeab(x)}    u_{,t}, \label{eq:flow-stres_x}
+\end{align}
+%
+where $u_{,t}$ is given in \eqref{eq:fin-diff} allows to derive the
+time integration as
+\begin{align}
+  \disp{}{j+1} = \disp{}{j} + \dt \frac{\permeab(x)}{\viscos(t_j)}\efstress_{,x} + \cO{\dt^2},
+\end{align}
+%
+where $\disp{}{j+1} \approx u(x,t_j)$.
+
+, to derive the
+formula for $ \efstress_{,x}$ we need to do a couple of intermediate
+calculations.  First, we write the formula for strain as a finite
+difference
+%
+\begin{align}
+  u_{,x} =& \frac{\disp{i+1}{j} - \disp{i}{j}}{\dx} + \cO{\dx},
+\end{align}
+%
+which allows to find the fibre volume fraction using
+\eqref{eq:fibre-volume} as
+%
+\begin{align}
+  \vfrac(x_i,t_j) = \frac{\vzero}{1+\frac{\disp{i+1}{j} - \disp{i}{j}}{\dx} + \cO{\dx}}
+  = \frac{\vzero{\dx}}{{\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}}}
+  \label{eq:vfrac-findiff}.
+\end{align}
+%
+We substitute this result into \eqref{eq:stress-nonlin} and obtain
+%
+\begin{align}
+  &\efstr{i}{j} = \spring
+  \frac{\frac{\vfrac(x_i,t_j)}{\vzero} -1}{\left(\frac{1}{\vfrac(x_i,t_j)} -\frac{1}{\vmax}\right)^4} = \spring
+  \frac{\frac{\frac{\vzero}{1+\frac{\disp{i+1}{j} - \disp{i}{j}}{\dx} + \cO{\dx}}}{\vzero} -1}{\left(\frac{1}{\frac{\vzero}{1+\frac{\disp{i+1}{j} - \disp{i}{j}}{\dx} + \cO{\dx}}} -\frac{1}{\vmax}\right)^4} = \spring
+  \frac{{\frac{1}{1+\frac{\disp{i+1}{j} - \disp{i}{j}}{\dx} + \cO{\dx}}} -1}{\left({\frac{1+\frac{\disp{i+1}{j} - \disp{i}{j}}{\dx} + \cO{\dx}}{\vzero}} -\frac{1}{\vmax}\right)^4} = \nonumber \\
+  &= \spring\frac{\frac{1 -(1+\frac{\disp{i+1}{j} - \disp{i}{j}}{\dx} + \cO{\dx})}{1+\frac{\disp{i+1}{j} - \disp{i}{j}}{\dx} + \cO{\dx}}}{\left({\frac{1+\frac{\disp{i+1}{j} - \disp{i}{j}}{\dx}}{\vzero}} -\frac{1}{\vmax}  + \cO{\dx}\right)^4}
+    %
+    = \spring\frac{\frac{\frac{\disp{i+1}{j} - \disp{i}{j}}{\dx}}{\frac{\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}}{\dx}} + \cO{\dx}}{\left(\frac{1}{\vzero} + \frac{\disp{i+1}{j} - \disp{i}{j}}{\vzero\dx} -\frac{1}{\vmax}  + \cO{\dx}\right)^4}= \nonumber \\
+    %
+  &= \spring \frac{\frac{\disp{i+1}{j} - \disp{i}{j}}{\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}}}%
+    {\left(\frac{1}{\vzero} + \frac{\disp{i+1}{j} - \disp{i}{j}}{\vzero\dx} -\frac{1}{\vmax}  + \cO{\dx}\right)^4} + \cO{\dx} = \nonumber \\
+    %%%%%%%%%%
+  &= \spring {\frac{\disp{i+1}{j} - \disp{i}{j}}{\left(\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}\right){\left(\frac{1}{\vzero} + \frac{\disp{i+1}{j} - \disp{i}{j}}{\vzero\dx} -\frac{1}{\vmax}  + \cO{\dx}\right)^4}}}%
+    + \cO{\dx} =  \nonumber \\
+  &= \spring \frac{\disp{i+1}{j} - \disp{i}{j}}{\left(\dx + \disp{i+1}{j} - \disp{i}{j}\right){\left(\frac{1}{\vzero} + \frac{\disp{i+1}{j} - \disp{i}{j}}{\vzero\dx} -\frac{1}{\vmax}  + \cO{\dx}\right)^4} + \cO{\dx^2}}
+    + \cO{\dx}
+     % =  \nonumber \\
+  , \label{eq:stress-nonlin-findif}
+\end{align}
+where $\efstr{i+1}{j} = \efstress(x_i,t_j)$.
+
+That can be used to find $\efstress_{,x}$ as
+%
+\begin{align}
+  &\efstress_{,x} = \frac{\efstr{i+1}{j} - \efstr{i}{j}}{\dx} + \cO{\dx}= \nonumber \\
+  &=
+  \spring
+   \frac{\disp{i+2}{j} - \disp{i+1}{j}}{{\dx}\left(\dx + \disp{i+2}{j} - \disp{i+1}{j}\right){\left(\frac{1}{\vzero} + \frac{\disp{i+2}{j} - \disp{i+1}{j}}{\vzero\dx} -\frac{1}{\vmax}  + \cO{\dx}\right)^4} + \cO{\dx^3}}- \nonumber\\ 
+   %%
+  &-\spring
+  \frac{\disp{i+1}{j} - \disp{i}{j}}{{\dx}\left(\dx + \disp{i+1}{j} - \disp{i}{j}\right){\left(\frac{1}{\vzero} + \frac{\disp{i+1}{j} - \disp{i}{j}}{\vzero\dx} -\frac{1}{\vmax}  + \cO{\dx}\right)^4} + \cO{\dx^3}}%
+   + \cO{\dx},
+\end{align}
+%
+which can be substituted to \eqref{eq:flow-stres_x}. Before that we
+also need to find the space dependent permeability
+$\permeab(\vfrac(x))$ from \eqref{eq:permeability}  and \eqref{eq:vfrac-findiff} as
+
+\begin{align}
+  &\permeab(x_i) = \frac{r_f^2}{4\kozeny} \frac{(1-\vfrac)^3}{\vfrac^2}=
+    \frac{r_f^2}{4\kozeny} \frac{\left(1-\frac{\vzero{\dx}}{{\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}}}\right)^3}{\left(\frac{\vzero{\dx}}{{\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}}}\right)^2}=\nonumber \\
+  %
+  &=\frac{r_f^2}{4\kozeny} \frac{\left(\frac{{\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}}-\vzero{\dx}}{{\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}}}\right)^3}{\left(\frac{\vzero{\dx}}{{\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}}}\right)^2}
+    =\frac{r_f^2}{4\kozeny} \frac{\frac{\left({\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}}-\vzero{\dx}\right)^3}{\left({\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}}\right)^3}}{\frac{\left(\vzero{\dx}\right)^2}{\left({\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}}\right)^2}}=\nonumber \\
+    %
+  &  =\frac{r_f^2}{4\left(\vzero{\dx}\right)^2\kozeny} {\frac{\left({\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}}-\vzero{\dx}\right)^3}{{\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}}}}.
+\end{align}
+
 
 
 \subsection{TODO}
@@ -932,6 +1048,7 @@ done in several steps as follows
 \end{enumerate}
 
 Solving the point \ref{en:all-const} we write down the model using the physical units.
+
 
 
 %% -----------------------------------------------------------------
