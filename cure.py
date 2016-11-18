@@ -1,12 +1,15 @@
-import matplotlib.pyplot as plt
 from math import exp
+
+# global variables
+V0 = 0.55			# intial fibre volume fraction
+Va= 0.68			# maximal fibre volume fraction
+R = 8.617			# universal gas constant (eV/K)
 
 def CtK(C):return C+273.15
 def KtC(C):return C-273.15
 
 def dcure(T,cure):
     """Calculates the rate of cure given temperature 'T' and the degree of 'cure' """
-    R = 8.617
     Aa = 1.53e5
     Ea = 6.65e4
     m = 0.813
@@ -17,7 +20,6 @@ def dcure(T,cure):
 def viscos(T,alpha):
     """returns viscosity from the temperature 'T' and cure 'alpha' """
     # viscosity
-    R = 8.617
     muinf = 3.45e-10		# steady-state viscosity (GPa s)
     E_mu = 7.6536e4             # activation energy (J/mol)
     alpha_g = 0.47              # degree of cure at gelation
@@ -28,6 +30,22 @@ def viscos(T,alpha):
         return muinf *exp(E_mu/(R*T)) * ( alpha_g/(alpha_g-alpha))**(A+B*alpha)
     else:
         return 1e8
+
+def vfrac(strain):
+    """fibre volume fraction as a function of strain """
+    return V0 /(1+strain)
+
+def stress(vf):
+    """ strain as a function of fibre volume fraction"""
+    As = 1.				# spring constant -- data fitted
+    return As * ((vf/V0 - 1.)/(1/vf - 1/Va)**4) 
+
+def perm(vf):
+    """ permeability as a function of fibre volume fraction"""
+    rf = 4e-3			# radius of fibre (mm)
+    k = 0.2				# Kozeny constant (1/s)
+
+    return rf**2/(4*k) * (1-vf)**3/vf**2
 
 
 def ramp_temp(time):

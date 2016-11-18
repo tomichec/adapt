@@ -35,9 +35,13 @@ permeab = 3.56e-06
 # time loop
 for j in range(0,Nt-1):
 
-    u[j,0] = du[0] = bc0                  # bottom boundary
-    # top boundary condition
-    u[j,Nx-1] = du[Nx-1] = press_loc(j*dt)
+    # boundary conditions...
+    u[j,0] = bc0                  # ...at the bottom,...
+    u[j,Nx-1] = press_loc(j*dt)    # ... and at the top
+
+    # numerical boundary conditions
+    du[0] = 2*(u[j,1] -2*u[j,0])/dx**2
+    du[Nx-1] = 0
 
     # space loop
     for i in range(1,Nx-1):

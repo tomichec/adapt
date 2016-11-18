@@ -522,25 +522,50 @@ method. This use time and space discretisation as
 %
 \begin{subequations}
   \begin{align}
-    x_i = x_0 + i\dx,\\
-    t_j = t_0 + j\dt,
+    x_i = x_0 + i\dx, \text{ for } i = 1, 2, \dots, N_x \\
+    t_j = t_0 + j\dt, \text{ for } j = 1, 2, \dots, N_t
   \end{align} \label{eq:discr}
 \end{subequations}
 %
-where $\dx$ is the space step and $\dt$ is the time step.  So we can
-write the displacement at a certain point in time-space as
+where $\dx$ is the space step and $\dt$ is the time step, and $x_{N_x} = L$.  So we can
+write the displacement at a certain points in time-space as
 $\disp{i}{j} \approx u(x_i,t_j)$. Then we find the discretisation as
 %
 \begin{subequations}
   \begin{align}
-    u_{,t}(x_i,t_j)  =& \frac{\disp{i}{j+1} - \disp{i}{j}}{\dt} + \bigO{\dt}, \\
-    u_{,xx}(x_i,t_j) =& \frac{\disp{i+1}{j} - 2\disp{i}{j} + \disp{i-1}{j}}{\dx^2} + \bigO{\dx^2},
+    u_{i,t}^j  =& \frac{\disp{i}{j+1} - \disp{i}{j}}{\dt} + \bigO{\dt}, \\
+    u_{i,xx}^j =& \frac{\disp{i+1}{j} - 2\disp{i}{j} + \disp{i-1}{j}}{\dx^2} + \bigO{\dx^2},
   \end{align}\label{eq:fin-diff}
 \end{subequations}
 %
-where $\mathcal{O}$ is so-called big-O notation that specifies the
-order of the approximation and corresponds to the part of the solution
-that is ignored.
+where $u_{i,t}^j = u_{,t}(x_i,t_j)$, $u_{i,xx}^j = u_{,xx}(x_i,t_j)$,
+and $\mathcal{O}$ is so-called big-O notation that specifies the order
+of the approximation and corresponds to the part of the solution that
+is ignored. This equation is valid for the interior point $x_i$ where
+$i = 2,\dots, N_x-1$. The finite difference scheme requires to
+introduce so-called numerical boundary conditions which represent the
+situation at the boundaries. The numerical boundary conditions
+interpolate the results at the interior points to approximate the
+boundary points. The simplest method is to use linear interpolation to
+find the solution at hypothetical points outside the boundary as
+%
+\begin{subequations}
+\begin{align}
+  \disp{-1}{j} =& \disp{1}{j} - 2\disp{0}{j}, \\
+  \disp{N_x+1}{j} =& 2\disp{N_x}{j} - \disp{N_x-1}{j},
+\end{align}
+\end{subequations}
+%
+so that the finite difference gives
+%
+\begin{align}
+  u_{0,xx}^j =& \frac{\disp{1}{j} - 2\disp{0}{j} + \disp{-1}{j}}{\dx^2} + \bigO{\dx^2} =
+  \frac{\disp{1}{j} - 2\disp{0}{j} + \disp{1}{j} - 2\disp{0}{j}}{\dx^2} + \bigO{\dx^2} =\nonumber \\
+  =&\frac{2(\disp{1}{j} - 2\disp{0}{j})}{\dx^2} + \bigO{\dx^2},
+  \\
+  u_{N_x,xx}^j =& \frac{\disp{N_x+1}{j} - 2\disp{N_x}{j} + \disp{N_x-1}{j}}{\dx^2} + \bigO{\dx^2} =\nonumber \\
+  =&\frac{2\disp{N_x}{j} - \disp{N_x-1}{j} - 2\disp{N_x}{j} + \disp{N_x-1}{j}}{\dx^2} + \bigO{\dx^2} = \bigO{\dx^2},
+\end{align}
 
 Substituting \eqref{eq:fin-diff} into \eqref{eq:heat} we get the
 numerical algorithm as

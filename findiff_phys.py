@@ -1,6 +1,6 @@
 import numpy as np
 
-from cure import dcure, viscos, CtK, ramp_temp, press_loc
+from cure import *
 
 DEBUG = 0
 
@@ -21,7 +21,7 @@ Nt = int(T/dt)                 # numer of time steps
 
 # allocate the arrays for results
 u = np.zeros((Nt,Nx))
-du = np.zeros(Nx)
+strain = np.zeros(Nx)
 cure = np.zeros(Nt)
 t = np.zeros(Nt)
 
@@ -35,19 +35,27 @@ permeab = 3.56e-06
 # time loop
 for j in range(0,Nt-1):
 
-    u[j,0] = du[0] = bc0                  # bottom boundary
-    # top boundary condition
-    u[j,Nx-1] = du[Nx-1] = press_loc(j*dt)
+    # boundary conditions...
+    u[j,0] = bc0                  # ...at the bottom,...
+    u[j,Nx-1] = press_loc(j*dt)    # ... and at the top
+
+    # numerical boundary conditions
+    # du[0] = 2*(u[j,1] -2*u[j,0])/dx**2
+    # du[Nx-1] = 0
 
     # space loop
-    for i in range(1,Nx-1):
+    for i in range(Nx-1):
         # finite difference for the space
-        du[i] = (u[j,i-1] - 2*u[j,i] + u[j,i+1])/(dx**2) - g
+        strain[i] = (u[j,i+1] - u[j,i])/(dx)
+    
+    vf = vfrac(strain)
     
     time = dt*j
     t[j+1] = time
     temp = CtK(ramp_temp(time))
-    u[j+1] = u[j] + dt*du*(permeab/viscos(temp,cure[j]))
+
+    
+    u[j+1] = u[j] + dt*strain*(perm(vf)/viscos(temp,cure[j]))
     cure[j+1] = cure[j] + dt*dcure(temp,cure[j])
 
 ##################################################

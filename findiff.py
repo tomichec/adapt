@@ -25,18 +25,24 @@ t = np.zeros(Nt)
 X = np.arange(0, L, dx)
 du = np.zeros(Nx)
 
+# j is index for time, and i is index for space, the order of time and
+# space is swaped wrt report.pdf
 for j in range(0,Nt-1):
 
-    u[j,0] = du[0] = bc0                  # bottom boundary
-    # top boundary condition
-    # u[j,Nx-1] = du[Nx-1] = R*dt*(j+1)
+    # boundary conditions...
+    u[j,0] = bc0                  # ...at the bottom,...
+    # ... and at the top
     if j < NR:
-        u[j,Nx-1] = du[Nx-1] = R*dt*(j)
+        u[j,Nx-1] = R*dt*(j)
     else:
-        u[j,Nx-1] = du[Nx-1] = R*dt*NR
+        u[j,Nx-1] = R*dt*NR
 
+    # numerical boundary conditions
+    du[0] = 2*(u[j,1] -2*u[j,0])/dx**2
+    du[Nx-1] = 0
+
+    # finite difference for the space
     for i in range(1,Nx-1):
-        # finite difference for the space
         du[i] = (u[j,i-1] - 2*u[j,i] + u[j,i+1])/(dx**2) - g
 
     t[j+1] = dt*j
