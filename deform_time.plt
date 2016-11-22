@@ -6,4 +6,14 @@ datafile="findiff.dat"
 set xlabel "TIME"
 set ylabel "DISP"
 
-plot for [i=2:11] datafile u 1:i w l
+set key autotitle columnheader reverse left bottom
+
+set lmargin 10
+set rmargin 2
+
+set xtics 0.1
+set ytics 0.005
+
+set yrange [-0.025:0.001]
+
+plot datafile u 1:"0.000" w l, '' u 1:"0.200" w l, '' u 1:"0.500" w l, '' u 1:"1.000" w l

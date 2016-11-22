@@ -24,6 +24,9 @@ all: consolidation.pdf permeab.pdf viscosity.pdf dcure.pdf cure.pdf fibre_bed.pd
 %.dat: %.py
 	python3 $< > $@
 
+%_trans.dat: %.dat
+	awk -f transpose.awk $< > $@
+
 # report.pdf: notes.tex galerkin.out
 # 	pdflatex $<
 
@@ -51,14 +54,14 @@ cure.dvi: cure.tex cure-temp-cure.eps cure-temp-viscos.eps
 fibre_bed.dvi: fibre_bed.tex
 	latex $<
 
-heat.dvi: heat.tex
+heat.dvi: heat.tex deform_frameX.eps deform_tX_map.eps deform_time.eps
 	latex $<
 
 %.pdf: %.dvi
 	dvipdf $*.dvi
 	pdfcrop $@ $@
 
-%.eps: %.plt common.plt consolidation.gpm cure.dat
+%.eps: %.plt common.plt consolidation.gpm cure.dat findiff.dat findiff_trans.dat
 	gnuplot $< > $@
 
 %.mp4: %/
