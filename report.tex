@@ -518,7 +518,7 @@ physical units are ignored, as follows
 where in this subsection we consider a simplified problem where $D=1$.
 
 The simplest method for solving this system is a finite difference
-method. This use time and space discretisation as
+method. This uses time and space discretisation as
 %
 \begin{subequations}
   \begin{align}
@@ -564,7 +564,7 @@ so that the finite difference gives
   =&\frac{2(\disp{1}{j} - 2\disp{0}{j})}{\dx^2} + \bigO{\dx^2},
   \\
   u_{N_x,xx}^j =& \frac{\disp{N_x+1}{j} - 2\disp{N_x}{j} + \disp{N_x-1}{j}}{\dx^2} + \bigO{\dx^2} =\nonumber \\
-  =&\frac{2\disp{N_x}{j} - \disp{N_x-1}{j} - 2\disp{N_x}{j} + \disp{N_x-1}{j}}{\dx^2} + \bigO{\dx^2} = \bigO{\dx^2},
+  =&\frac{2\disp{N_x}{j} - \disp{N_x-1}{j} - 2\disp{N_x}{j} + \disp{N_x-1}{j}}{\dx^2} + \bigO{\dx^2} = \bigO{\dx^2}.
 \end{align}
 
 Substituting \eqref{eq:fin-diff} into \eqref{eq:heat} we get the
@@ -604,16 +604,21 @@ Using this relation we can choose the space or time step as
 
 \begin{figure}
   \centering
-  \includegraphics[width=1.0\linewidth]{heat.pdf}
+  \includegraphics{heat.pdf}
   \caption{Finite difference solution of equation
     \eqref{eq:heat}. Panel (a) shows the dependence of the deformation
-    of the fibre bed on time at the boundaries $x=0$ (blue line) and
-    $x=1$ (red line) and in the interior points $x=0.2$ (magenta line)
-    and $x=0.5$ (green line) (b) shows the dependence of the
-    displacement on the possition in initial state (blue), at $t=0.1$
-    (magenta), at $t=0.2$ (green) and at the end of the simulation
-    $t=0.4$.  Panel (c) shows the time dependence (horizontal line) of
-    the deformation (colour-coded, left bar) in the reference frame.}
+    of the fibre bed on time at the boundaries $x=0$ (violet line) and
+    $x=1$ (yellow line) and in the interior points $x=0.2$ (green
+    line) and $x=0.5$ (blue line) (b) shows the dependence of the
+    displacement on the possition in the frame of reference $x$ at the
+    initial conditions (violet line), at $t=0.1$ (green line), at
+    $t=0.2$ (blue line) and at the end of the simulation $t=0.4$
+    (yellow line).  Panel (c) shows colour coded map (left bar) of the
+    deformation dependent on the time (vertical axis) and the frame of
+    reference (horizontal axis). The a gray scale map from white
+    colour which corresponds to small deformation to black which
+    corresponds to maximal deformation of $-0.02$ is complemented by a
+    contour lines ad four different values as specified in the legend.}
   \label{fig:findiff-heat}
 \end{figure}
 
