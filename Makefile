@@ -15,17 +15,42 @@
 
 # all: galerkin.out finel.pdf
 
-all: consolidation.pdf permeab.pdf viscosity.pdf dcure.pdf cure.pdf fibre_bed.pdf galerkin.out element.out findiff.dat cons_viscos.mp4
+# findiff-t_1e-6_-n_100.dat -- takes real time 1m1.576s
+DATDT = $(foreach t, 1e-7 1e-6 1e-4 1e-3, findiff-t_$t.dat)
+DATN = $(foreach n, 1000 300 100 30 10, findiff-t_1e-7_-n_$n.dat)
+
+.PRECIOUS: $(DATDT) $(DATN)
+
+all: consolidation.pdf permeab.pdf viscosity.pdf dcure.pdf cure.pdf fibre_bed.pdf galerkin.out element.out findiff.dat cons_viscos.mp4 error.pdf
 
 # also creates a plot
 %.out: %.py
 	python3 $< > $@
 
+trans_%.dat: %.dat
+	awk -f transpose.awk $< > $@
+
+findiff%.dat: findiff.py
+	python3 $< $(subst _, ,$*) > $@
+
 %.dat: %.py
 	python3 $< > $@
 
-%_trans.dat: %.dat
-	awk -f transpose.awk $< > $@
+norm_dt.dat: $(DATDT)
+	bash -c 'for i in $+;\
+		do \
+			DT=`echo $$i | sed -e "s/findiff-t_//" -e "s/.dat//"`;\
+			echo -ne "$$DT\t";\
+			awk -f findiff_norm.awk findiff-t_1e-7.dat $$i;\
+		done' > $@
+
+norm_dx.dat: $(DATN)
+	bash -c 'for i in $+;\
+		do\
+			N=`echo $$i | sed -e "s/findiff-t_1e-7_-n_//" -e "s/.dat//"`;\
+			echo print\(1/$$N,end=\"\\t\"\) | python;\
+			awk -f findiff_norm.awk findiff-t_1e-7_-n_1000.dat $$i;\
+		done' > $@
 
 # report.pdf: notes.tex galerkin.out
 # 	pdflatex $<
@@ -57,12 +82,15 @@ fibre_bed.dvi: fibre_bed.tex
 heat.dvi: heat.tex deform_frameX.eps deform_tX_map.eps deform_time.eps
 	latex $<
 
+error.dvi: error.tex stability.eps norm_dt.eps norm_dx.eps norm_dt.dat norm_dx.dat
+	latex $<
+
 %.pdf: %.dvi
 	dvipdf $*.dvi
 	pdfcrop $@ $@
 
-%.eps: %.plt common.plt consolidation.gpm cure.dat findiff.dat findiff_trans.dat
+%.eps: %.plt common.plt consolidation.gpm cure.dat findiff.dat trans_findiff.dat norm_dt.dat
 	gnuplot $< > $@
 
-%.mp4: %/
-	ffmpeg -framerate 4 -i $*/movie%03d.png -c:v libx264 -r 30 -pix_fmt yuv420p $@
+# %.mp4: %/
+# 	ffmpeg -framerate 4 -i $*/movie%03d.png -c:v libx264 -r 30 -pix_fmt yuv420p $@

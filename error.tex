@@ -1,0 +1,30 @@
+\documentclass[10pt,a4paper]{article}
+% \usepackage{a4wide}
+% \documentclass[aps,pre,amsfonts,amsmath,showpacs,a4paper]{revtex4}
+% \input{figformat.tex}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{psfrag}
+% \usepackage{amsmath}
+
+\usepackage{graphicx}
+\usepackage{color}    % to use color in notes etc.
+\pagestyle {empty} % removes the page numbers
+
+\input{nots.tex}
+\input{psfrags.tex}
+
+\begin{document}
+
+  \begin{tabular}{l@{}l@{}l}
+    % \includegraphics[width=0.33\linewidth]{deform.eps}&    \includegraphics[width=0.33\linewidth]{flow.eps}&
+    % \includegraphics[width=0.34\linewidth]{surf.eps}\\
+        \includegraphics{stability.eps}&    \includegraphics{norm_dt.eps}
+                                                                                                             &
+                                                     \includegraphics{norm_dx.eps}
+    \\
+    (a)&(b)&(c)
+  \end{tabular}
+
+\end{document}
