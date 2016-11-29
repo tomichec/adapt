@@ -565,6 +565,7 @@ so that the finite difference gives
   \\
   u_{N_x,xx}^j =& \frac{\disp{N_x+1}{j} - 2\disp{N_x}{j} + \disp{N_x-1}{j}}{\dx^2} + \bigO{\dx^2} =\nonumber \\
   =&\frac{2\disp{N_x}{j} - \disp{N_x-1}{j} - 2\disp{N_x}{j} + \disp{N_x-1}{j}}{\dx^2} + \bigO{\dx^2} = \bigO{\dx^2}.
+     \label{eq:error-bigO}
 \end{align}
 
 Substituting \eqref{eq:fin-diff} into \eqref{eq:heat} we get the
@@ -597,8 +598,12 @@ Using this relation we can choose the space or time step as
 \begin{align}
   % \frac{\max(D)\dt}{\dx^2} < \frac{1}{2}, \\
   \sqrt{2\max(D)\dt} < \dx, \\
-  \dt < \frac{\dx^2}{2\max(D)}.
+  \dt < \frac{\dx^2}{2\max(D)}.\label{eq:stable-boundary}
 \end{align}
+
+\figref{fig:error-analysis}(a) shows the graph of the stability of the
+solution dependent on the space step $\dx$. The stable region
+corresponds to the values of $\dt$ under the line.
 
 \subsection{Implementation of Simplified Flow Problem}
 
@@ -629,6 +634,42 @@ $\dx = 0.1$ such that the space contains $N_x=10$ nodes. The initial
 conditions $\disp{i}{0} = 0$. The bottom boundary is fixed at
 $\disp{0}{t} = 0$, while the top boundary move with a speed $R=1$ such
 that $\disp{N_x}{j} = j \dt R$.
+
+
+\begin{figure}
+  \centering
+  \includegraphics{error.pdf}
+  \caption{Analysis of the error of the solution. Panel (a) shows the
+    boundary between stable and unstable region in the $\dx$--$\dt$
+    plane according to \eqref{eq:stable-boundary} where $\max(D) =
+    1$. Panel (b) and (c) shows the norm of the error in the
+    computation of the heat equation in (b) dependent on $\dt$ at
+    $\dx=0.1$, in (c) as dependent on $\dx$ at $\dt=1e-7$.}
+  \label{fig:error-analysis}
+\end{figure}
+
+\figref{fig:error-analysis} shows the analysis of the error in the
+solution of the heat equation. Panel (a) shows the stability region
+from equation \eqref{eq:stable-boundary} as specified above. The
+panels (b) and (c) show the dependence of the error on the time step
+and on the grid step. The norm was computed using the formula
+%
+\begin{align}
+  \norm{u} = \frac{1}{N_t N_x}\sqrt{ \sum_{i,j} \left(\hat{u}_{i}^{j} - \disp{i}{j}\right)^2}
+\end{align}
+where $N_t$ and $N_x$ is the number of time and grid points of in the
+stored data files, and $\hat{u}$ corresponds to accurate solution. The
+time step of the accurate solution was $\dt = 1\ee{-7}$. The space step
+of accurate solution was $\dx=0.1$ and $\dx=1\ee{-3}$ in panel (b) and
+(c) respectively.
+
+The simulation time of the solution with $\dx=1\ee{-3}$, $\dt=1\ee{-7}$
+was $1$ hour $43$ minutes.
+
+The results confirm the theoretical results from equation
+\eqref{eq:error-bigO} giving the first-order in $\dt$ and the
+second-order in $\dx$ as the slope in the log-log plot is $1$ and $2$
+for panel (b) and (c) respectively.
 
 The implementation of the finite difference code in \python\ is shown
 below.
