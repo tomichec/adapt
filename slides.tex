@@ -1,25 +1,28 @@
 \documentclass[compress]{beamer}% [handout][compress]
 
 % use handout option for one slide per page
-\mode<presentation>
-\usetheme{Frankfurt} 
+% \mode<presentation>
 %regular LaTeX title/author info
 %\AtBeginSection[]{} % for optional outline or other recurrent slide
 
 \setbeamertemplate{footline}[frame number]
 
-\usecolortheme{seahorse}
-\definecolor{darkgreen}{rgb}{0,0.7,0}
-
 \setbeamerfont{caption}{size=\tiny}
 \beamertemplatenavigationsymbolsempty
 
-% \usepackage[percent]{overpic}
-\newcommand{\eqcolor}{blue} 
-\everymath{\color{\eqcolor}}
+\definecolor{darkgreen}{rgb}{0,0.7,0}
+
+\mode<presentation>
+{
+\usetheme{Frankfurt} 
+\usecolortheme{seahorse}
+\setbeamercovered{transparent}
+\setbeamercolor{math text}{fg=\notcolor}
+\setbeamercolor{math text displayed}{fg=\notcolor}
+}
 
 \newenvironment{myalign}
-{\align\color{\eqcolor}}
+{\align\color{\notcolor}}
 {
   \nonumber
   \endalign
@@ -60,6 +63,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% multicolumns in item lists (from viva slides)
+\usepackage{multicol}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % http://tex.stackexchange.com/questions/33969/changing-font-size-of-selected-slides-in-beamer
 % \usepackage{lipsum} % lorem ipsum
@@ -68,18 +75,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \institute{\footnotesize 
-  %% \includegraphics[width=0.3\linewidth]{exeLogo.pdf}  \\[1ex]
-  College of Engineering, Mathematics and Physical Sciences
+  College of Engineering, Mathematics and Physical Sciences  \\[1ex]
+  \includegraphics[width=0.3\linewidth]{exeLogo.pdf}
 }
 
-\title{Research Meeting:\\ Carbon Fibre Consolidation}
+\title{ADAPT Online Meeting:\\ Carbon Fibre Consolidation}
 
 \author{ \textbf{\Large Tom\'a\v s Star\'y} \\ {\footnotesize\it advised by} \\[1ex] \textbf{\Large Tim Dodwell}
 }
 
 
 \date{
-\it  Fri 11 November 2016
+\it  Tue 29 November 2016
 }
 
 \newcommand{\highlight}[1]{\boxed{#1}}
@@ -150,8 +157,8 @@
 
 \begin{frame}
   \frametitle{Fibre Bed Deformation}
-  \begin{columns}
-    \begin{column}{0.6\textwidth}
+  % \begin{columns}
+  %   \begin{column}{0.6\textwidth}
       
       Stress in the fibre bed
       %
@@ -178,28 +185,128 @@
          $u_{,t} =\dd u/ \dd t$.
         \end{itemize}
 
+  %   \end{column}
+  %   \begin{column}{0.4\linewidth}
+  %     When ${\viscos(t)},{\permeab(x)},E=1$
+  %     \includegraphics[width=1.0\linewidth]{deform.eps}\\
+  %     \includegraphics[width=1.0\linewidth]{flow.eps}
+  %     % \includegraphics{cure-temp-viscos.pdf}
+  %   \end{column}
+  % \end{columns}
+\end{frame}
+
+\section{Finite Difference}
+\subsection{Solution}
+
+\begin{frame}
+  \frametitle{Solution}
+
+  Simplified problem when ${\viscos(t)},{\permeab(x)}$ and $E=1$:
+\begin{align}
+  \label{eq:heat}
+  &u_{,xx}(x,t) - u_{,t}(x,t) + f(x) 
+  = 0,&& u(0,t) = 0, \\\nonumber
+             &u(x,0) = 0, u(L,t) =
+            \begin{cases}
+              -Rt &\text{ for } t < \duration,\\
+              -R\duration &\text{ for } t > \duration.
+            \end{cases}
+\end{align}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1.0\linewidth]{heat.pdf}
+  % \caption{Finite difference solution of equation
+  %   \eqref{eq:heat}. Panel (a) shows the dependence of the deformation
+  %   of the fibre bed on time at the boundaries $x=0$ (violet line) and
+  %   $x=1$ (yellow line) and in the interior points $x=0.2$ (green
+  %   line) and $x=0.5$ (blue line) (b) shows the dependence of the
+  %   displacement on the possition in the frame of reference $x$ at the
+  %   initial conditions (violet line), at $t=0.1$ (green line), at
+  %   $t=0.2$ (blue line) and at the end of the simulation $t=0.4$
+  %   (yellow line).  Panel (c) shows colour coded map (left bar) of the
+  %   deformation dependent on the time (vertical axis) and the frame of
+  %   reference (horizontal axis). The a gray scale map from white
+  %   colour which corresponds to small deformation to black which
+  %   corresponds to maximal deformation of $-0.02$ is complemented by a
+  %   contour lines ad four different values as specified in the legend.}
+  \label{fig:findiff-heat}
+\end{figure}
+
+\end{frame}
+
+
+\subsection{Numerical Error and Stability}
+\begin{frame}
+\frametitle{Numerical Error and Stability}
+
+Finite difference algorithm:
+\begin{align}
+  \disp{i}{j+1}  =   \disp{i}{j} + \dt\left(\frac{\disp{i+1}{j} - 2\disp{i}{j} + \disp{i-1}{j}}{\dx^2}   + f(x_i) \right) +
+\bigO{\dt} + \bigO{\dx^2}. \nonumber
+   \label{eq:findiff-alg}
+\end{align}
+%
+Solution $\disp{i}{j}\approx u(x_i,t_j)$ with discretisation
+$ x_i = i\dx$, $ t_j = j\dt$ for $j = 1, 2, \dots, N_t$ and
+$i = 1, 2, \dots, N_x$.
+
+Stable solution for $  \dt < \frac{\dx^2}{2\max(D)}$.
+
+Error $\errU = \norm{\hat{u} - u}$.
+%
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{error.pdf}
+  % \caption{Analysis of the error of the solution. Panel (a) shows the
+  %   boundary between stable and unstable region in the $\dx$--$\dt$
+  %   plane according to \eqref{eq:stable-boundary} where $\max(D) =
+  %   1$. Panel (b) and (c) shows the norm of the error in the
+  %   computation of the heat equation in (b) dependent on $\dt$ at
+  %   $\dx=0.1$, in (c) as dependent on $\dx$ at $\dt=1e-7$.}
+  \label{fig:error-analysis}
+\end{figure}
+
+\end{frame}
+
+
+\section{Resin Flow Model}
+
+
+
+\subsection{Fibre Volume Fraction}
+
+\begin{frame}
+  \frametitle{Fibre Volume Fraction}
+
+  \begin{columns}
+    \begin{column}{0.6\linewidth}
+      Fibre volume fraction (FVF)
+        \begin{myalign} 
+          \vfrac(\strain) = \frac{\vzero}{1+\strain(x,t)}
+        \end{myalign}
+        \begin{itemize}
+        \item $\vzero=0.55$ -- initial FVF,
+        \item $\strain(x,t) = u_{,x}$ -- strain.
+        \end{itemize}
     \end{column}
     \begin{column}{0.4\linewidth}
-      When ${\viscos(t)},{\permeab(x)},E=1$
-      \includegraphics[width=1.0\linewidth]{deform.eps}\\
-      \includegraphics[width=1.0\linewidth]{flow.eps}
-      % \includegraphics{cure-temp-viscos.pdf}
+      \includegraphics{vf-strain.pdf}
     \end{column}
   \end{columns}
 \end{frame}
-
-\section{Resin Flow}
 
 \subsection{Fibre Bed Permeability}
 
 \begin{frame}
   \frametitle{Fibre Bed Permeability}
-  \begin{columns}
-    \begin{column}{0.6\linewidth}
+  % \begin{columns}
+  %   \begin{column}{0.6\linewidth}
       The equation of the flow
       \begin{myalign}
         \flow(x,t) = -\frac{\permeab(x)}{\viscos(t)} \press_{,x} .
       \end{myalign}
+      
       Permeability by \citet{Dave1987b}
       \begin{myalign}
         \permeab(\vfrac) = \frac{r_f^2}{4\kozeny} \frac{(1-\vfrac)^3}{\vfrac^2} 
@@ -209,65 +316,123 @@
       % \item $r_f, \kozeny$ -- constants,
       \item $r_f=4\ee{-3}$~mm -- radius of fibre,
       \item $\kozeny=0.2$~1/s -- ``Kozeny'' constant, 
-      \item $\vfrac$ -- fibre volume fraction (FVF)
-        \begin{myalign}
-          \vfrac(\strain) = \frac{\vzero}{1+\strain(x)}
-        \end{myalign}
-        \begin{itemize}
-        \item $\vzero$ -- initial FVF,
-        \item $\strain(x)$ -- strain.
-        \end{itemize}
+      \item $\vfrac$ -- fibre volume fraction (FVF).
+        % \begin{myalign}
+        %   \vfrac(\strain) = \frac{\vzero}{1+\strain(x)}
+        % \end{myalign}
+        % \begin{itemize}
+        % \item $\vzero$ -- initial FVF,
+        % \item $\strain(x)$ -- strain.
+        % \end{itemize}
       \end{itemize}
-    \end{column}
-    \begin{column}{0.4\linewidth}
-      \includegraphics{permeab-vf.pdf}\\
-      \includegraphics{vf-strain.pdf}
-    \end{column}
-  \end{columns}
+  %   \end{column}
+  %   \begin{column}{0.4\linewidth}
+  %     \includegraphics{permeab-vf.pdf}\\
+  %     % \includegraphics{vf-strain.pdf}
+  %   \end{column}
+  % \end{columns}
+
+      \begin{figure}
+  \centering
+  \includegraphics[width=0.66\linewidth]{permeab.pdf}
+  % \caption{Permeability of the fibre bed during the consolidation.
+  %   The figure (a) The combination of dependence of volume fraction on
+  %   the strain as shown in \figref{fig:consolidation}(a), combined
+  %     with the dependence of the permeability on volume fraction shown
+  %     in this figure panel (a), gives the dependence of the
+  %     permeability as a function of strain as shown in panel (b).}
+  \label{fig:permeab}
+\end{figure}
+
+
   
 \end{frame}
+
+
+
 
 \subsection{Resin Viscosity}
 
 \begin{frame}
   \frametitle{Resin Viscosity}
-  \begin{columns}
-    \begin{column}{0.6\linewidth}
+  % \begin{columns}
+  %   \begin{column}{0.6\linewidth}
       Viscosity by \citet{Kenny1992}
       \begin{myalign}
         \viscos(\temp,\cure) =
         \viscosinf \exp{\frac{E_\viscos }{R \temp}} \left(\frac{\curegel}{\curegel - \cure}\right)^{A+B\cure} 
       \end{myalign}
+      {\begin{multicols}{2}
       \begin{itemize}
-        \itemsep 0mm
-        % \item $\viscosinf=3.45\ee{-10}$~Pa$\cdot$s, % -- viscosity asymptote
-        % \item $E_\viscos = 7.6536\ee{5}$~J/mol, % -- activation energy
-        % \item $R = 8.617$~eV/K --  universal gas constant,
-        % \item $\curegel = 0.47$ -- cure at  gelation,
-        % \item $A, B$ -- constants.
-      \item $\viscosinf,E_\viscos, R, A, B$ -- constants,
-      \item $\curegel = 0.47$ -- cure at gelation,
-      \item $\cure$ -- degree of cure
-        \begin{myalign}
-          \cure_{,t} = A_\cure \exp{-\frac{E_\cure }{R\temp}} \cure^m
-          (1-\cure)^n 
-        \end{myalign}
-        \begin{itemize}
-          % \item $A_\cure=1.53\ee{5}$~1/s
-          % \item $E_\cure=6.65\ee{4}$~J/mol
-          % \item $m=0.813$, $n=2.74$
-        \item $A_\cure, E_\cure, m, n$ constants.
-        \end{itemize}
+        % \itemsep 0mm
+        \item $\viscosinf=3.45\ee{-10}$~Pa$\cdot$s, % -- viscosity asymptote
+        \item $E_\viscos = 7.6536\ee{5}$~J/mol, % -- activation energy
+        \item $R = 8.617$~eV/K --  gas constant,
+        \item $\curegel = 0.47$ -- cure at  gelation,
+        \item $A, B$ -- constants,
+      % \item $\viscosinf,E_\viscos, R, A, B$ -- constants,
+      % \item $\curegel = 0.47$ -- cure at gelation,
+      \item $\cure$ -- degree of cure.
       \end{itemize}
+    \end{multicols}}
 
-    \end{column}
-    \begin{column}{0.4\linewidth}
-      \includegraphics{viscosity-map.pdf}\\
-      \includegraphics{dcure-map.pdf}
-    \end{column}
-  \end{columns}
+      \begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{viscosity.pdf}
+  % \caption{Viscosity of the resin. Panel (a) shows the dependence of the
+  %   viscosity on the temperature for three different values of
+  %   $\cure$: magenta line $\cure=0.1$, green line $\cure=0.2$, cyan
+  %   line $\cure=0.4$, panel (b) shows the dependence of the viscosity
+  %   on the degree of cure for three different temperatures: magenta
+  %   line $\temp = 100$\degree C, green line $\temp = 130$\degree C, and cyan line
+  %   $\temp = 180$\degree C.}
+  \label{fig:viscos}
+\end{figure}
   
 \end{frame}
+
+
+\subsection{Resin Cure}
+\begin{frame}
+  \frametitle{Resin Cure}
+  % \begin{columns}
+  %   \begin{column}{0.6\linewidth}
+  Degree of cure
+  \begin{myalign}
+    \cure_{,t} = A_\cure \exp{-\frac{E_\cure }{R\temp}} \cure^m
+    (1-\cure)^n 
+  \end{myalign}
+  \begin{itemize}
+  \item $A_\cure=1.53\ee{5}$~1/s,
+  \item $E_\cure=6.65\ee{4}$~J/mol,
+  \item $m=0.813$, $n=2.74$.
+    % \item $A_\cure, E_\cure, m, n$ constants.
+  \end{itemize}
+
+  \begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{dcure.pdf}
+    % \caption{Rate of cure of the resin. Panel (a) shows the dependence of the
+    % rate of cure on the temperature for three different values of
+    % $\cure$: magenta line $\cure=0.1$, green line $\cure=0.2$, cyan
+    % line $\cure=0.4$, panel (b) shows the dependence of the rate of cure 
+    % on the degree of cure for three different temperatures: magenta
+    % line $\temp = 100$\degree C, green line $\temp = 130$\degree C, and cyan line
+    % $\temp = 180$\degree C.}
+    \label{fig:cure}
+  \end{figure}
+
+
+  %   \end{column}
+  %   \begin{column}{0.4\linewidth}
+  %     % \includegraphics{viscosity-map.pdf}\\
+  %     \includegraphics{dcure-map.pdf}
+  %   \end{column}
+  % \end{columns}
+  
+\end{frame}
+
+
 
 
 \begin{frame}
@@ -279,12 +444,22 @@
   \item next $30$~minutes: from $\temp_f$ to $\temp_c=176$\degree C,
   \item final $30$~minutes at $\temp_c$ to complete resin cure.
   \end{itemize}
-
+\begin{figure}
   \centering
-  \begin{tabular}{l@{\hspace{3em}}l}
-  \includegraphics{cure-temp-cure.pdf}&
-  \includegraphics{cure-temp-viscos.pdf}
-  \end{tabular}
+  \includegraphics[width=0.66\linewidth]{cure.pdf}
+  % \caption{Time evolution of the cure of the resin in the autoclave
+  %   experiment (a), and related evolution of the viscosity of the
+  %   resin (b). The ODE \eqref{eq:cure} is subject to the autoclave
+  %   temperature protocol (shown in green lines, labels on the right
+  %   axis in (b) applies to both panels).}
+  \label{fig:cure-exp}
+\end{figure}
+
+  % \centering
+  % \begin{tabular}{l@{\hspace{3em}}l}
+  % \includegraphics{cure-temp-cure.pdf}&
+  % \includegraphics{cure-temp-viscos.pdf}
+  % \end{tabular}
 \end{frame}
 
 \section{Effective Stress}
@@ -292,8 +467,8 @@
 \begin{frame}
   \frametitle{Effective stress}
 
-  \begin{columns}
-    \begin{column}{0.6\textwidth}
+  % \begin{columns}
+  %   \begin{column}{0.6\textwidth}
       Effective stress by \citet{Gutowski1987}
       \begin{myalign}
         \efstress(\vfrac) = \spring
@@ -311,12 +486,19 @@
       %   \item $\strain(x)$ -- strain.
       %   \end{itemize}
       \end{itemize}
-    \end{column}
-    \begin{column}{0.4\textwidth}
-      \includegraphics{stress-strain.pdf}
-      % \includegraphics{vf-strain.pdf}
-    \end{column}
-  \end{columns}
+  %   \end{column}
+  %   \begin{column}{0.4\textwidth}
+  %     \includegraphics{stress-strain.pdf}
+  %     % \includegraphics{vf-strain.pdf}
+  %   \end{column}
+  % \end{columns}
+
+      \begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{consolidation.pdf}
+  % \caption{Mechanical properties of the material during the consolidation of the carbon fibres. The combination of dependence of volume fraction on the strain as shown in panel (a), combined with the dependence of stress on volume fraction shown in panel (b), gives the dependence of the stress as a function of strain as shown in panel (c).}
+  \label{fig:consolidation}
+\end{figure}
 \end{frame}
 
 \section{Conclusions}
@@ -326,6 +508,7 @@
   Results
   \begin{itemize}
   \item finite difference model for resin flow,
+  \item error and stability analysis,
   \item fibre cure model,
   \item description of relevant physics.
   \end{itemize}
@@ -336,7 +519,6 @@
   \item finite element method,
   \item extending the code into 2D and 3D,
   \item implementation in DUNE.
-  \item Your suggestions?
   \end{itemize}
 \end{frame}
 

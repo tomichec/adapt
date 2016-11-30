@@ -90,11 +90,11 @@
 
 \newcommand{\ie}{{\it i.e.\ }}
 
-\newcommand{\note}[1]{{\color{red}(#1)}}
-\newcommand{\QM}{{\color{red}(?)}}
+% \newcommand{\note}[1]{{\color{red}(#1)}}
+% \newcommand{\QM}{{\color{red}(?)}}
 
-% \newcommand{\note}[1]{}
-% \newcommand{\QM}{}
+\newcommand{\note}[1]{}
+\newcommand{\QM}{}
 \newcommand{\X}[1]{{\color{brown}\st#1} } % removed text
 \newcommand{\A}[1]{{\color{purple}#1}} % added text
 
@@ -582,7 +582,7 @@ numerical algorithm as
 %
 which has associated error of
 \begin{align}
-  \epsilon_u =\bigO{\dt} + \bigO{\dx^2}.
+  \errU =\bigO{\dt} + \bigO{\dx^2}.
 \end{align}
 
 This numerical method is stable if
@@ -655,7 +655,7 @@ panels (b) and (c) show the dependence of the error on the time step
 and on the grid step. The norm was computed using the formula
 %
 \begin{align}
-  \norm{u} = \frac{1}{N_t N_x}\sqrt{ \sum_{i,j} \left(\hat{u}_{i}^{j} - \disp{i}{j}\right)^2}
+  \errU = \norm{\hat{u} - u} = \frac{1}{N_t N_x}\sqrt{ \sum_{i,j} \left(\hat{u}_{i}^{j} - \disp{i}{j}\right)^2}
 \end{align}
 where $N_t$ and $N_x$ is the number of time and grid points of in the
 stored data files, and $\hat{u}$ corresponds to accurate solution. The
