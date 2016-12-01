@@ -1,35 +1,17 @@
-# %.pdf: %.eps
-#      epstopdf --autorotate=All $<
-# # %.dvi: %.tex nots_TS.tex macros_TS.tex
-# #    ${COMMENT}
-# #    latex $<
-# %.raweps: %.dvi
-#      ${COMMENT}
-#      dvips -E -i -p 1 -o $* $<
-# #       $(DVIPS) -E -i -K -p 1 -o $* $< # -K options seems to make %.raweps +non-readable
-#      mv $*001 $@
-# %.eps: %.raweps
-#      ${COMMENT}
-#      epstool --copy --bbox $< $@
-# ###################
-
-
 # modified implicit rule for the .tex files
 TEX=latex
 
-# What are we after
+# figures used in the process
 FIGURES = consolidation.pdf heat.pdf permeab.pdf viscosity.pdf dcure.pdf cure.pdf fibre_bed.pdf error.pdf
 
-.PHONY: all
+# as pdf generation uses latex, the target are logfiles -- the pdf is side product
+LOG = report.log slides.log
 
-all: $(FIGURES) element.out galerkin.out 
+.PHONY: all aux
 
-# PDF = report.pdf slides.pdf
-# # report.pdf slides.pdf: nots.tex $(FIGURES)
-# $(PDF): 
-# report.pdf: report.tex
-# slides.pdf: slides.tex
-# 	pdflatex $<
+all: $(LOG)
+
+aux: $(FIGURES) element.out galerkin.out 
 
 # output from python scripts
 %.out: %.py
@@ -72,7 +54,6 @@ norm_dx.dat: | $(DATN)
 			awk -f norm.awk findiff-t_1e-7_-n_1000.dat $$i;\
 		done' > $@
 
-
 #  prerequisites for the EPS figure pannels
 %.eps: common.plt consolidation.gpm
 cure-temp-cure.eps cure-temp-viscos.eps: cure.dat
@@ -98,10 +79,30 @@ viscosity.dvi: viscosity-temp.eps viscosity-cure.eps viscosity-map.eps
 	dvipdf $*.dvi
 	pdfcrop $@ $@
 
+$(LOG): nots.tex $(FIGURES)
+report.log: report.tex
+slides.log: slides.tex
+	pdflatex $<
+
 
 # ANIMATIONS
 %.mp4: %/
 	ffmpeg -framerate 4 -i $*/movie%03d.png -c:v libx264 -r 30 -pix_fmt yuv420p $@
+
+# DOWNLOAD AND UPLOAD OF EXPENSIVE SIMULATION RESULTS
+TGZ = simulations.tar.gz
+$(TGZ): $(DATN)
+	tar czvf $@ $+
+
+.PHONY: download upload
+
+download:
+	-rm $(TGZ)
+	wget http://wiener.ex.ac.uk/~tom/adapt/$(TGZ)
+	tar xzvf $(TGZ) | xargs touch
+
+upload: $(TGZ)
+	scp $< wiener:~/Sites/adapt/
 
 # REMOVE UNNECESSARY FILES
 .PHONY: clean veryclean
