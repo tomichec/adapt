@@ -1,11 +1,14 @@
 # modified implicit rule for the .tex files
 TEX=latex
 
+PYTHON=python3
+
 # figures used in the process
 FIGURES = consolidation.pdf heat.pdf permeab.pdf viscosity.pdf dcure.pdf cure.pdf fibre_bed.pdf error.pdf
 
 # as pdf generation uses latex, the target are logfiles -- the pdf is side product
-LOG = report.log slides.log
+# slides.log
+LOG = report.log
 
 .PHONY: all aux
 
@@ -15,15 +18,15 @@ aux: $(FIGURES) element.out galerkin.out
 
 # output from python scripts
 %.out: %.py
-	python3 $< > $@
+	$(PYTHON) $< > $@
 
 # datafiles from python scripts
 %.dat: %.py
-	python3 $< > $@
+	$(PYTHON) $< > $@
 
 # findiff file, which requires command line arguments -- DOES IT WORK?
 findiff%.dat: findiff.py
-	python3 $< $(subst _, ,$*) > $@
+	$(PYTHON) $< $(subst _, ,$*) > $@
 
 # transpose of the datafile
 trans_%.awk.dat: trans.awk %.dat
@@ -50,26 +53,27 @@ norm_dx.dat: | $(DATN)
 	bash -c 'for i in $(DATN);\
 		do\
 			N=`echo $$i | sed -e "s/findiff-t_1e-7_-n_//" -e "s/.dat//"`;\
-			echo print\(1/$$N,end=\"\\t\"\) | python;\
+			echo print\(1/$$N,end=\"\\t\"\) | $(PYTHON);\
 			awk -f norm.awk findiff-t_1e-7_-n_1000.dat $$i;\
 		done' > $@
 
 #  prerequisites for the EPS figure pannels
-%.eps: common.plt consolidation.gpm
 cure-temp-cure.eps cure-temp-viscos.eps: cure.dat
 deform_frameX.eps: trans_findiff.awk.dat
 deform_tX_map.eps deform_time.eps: findiff.dat
-norm_dt.eps: norm_dt.dat
 norm_dx.eps: norm_dx.dat
-%.eps: %.plt
+norm_dt.eps: norm_dt.dat
+
+%.eps: %.plt common.plt consolidation.gpm
 	gnuplot $< > $@
+
 
 # prerequisites for DVI files
 %.dvi: psfrags.tex
 consolidation.dvi: vf-strain.eps stress-strain.eps stress-vf.eps
 cure.dvi: cure-temp-cure.eps cure-temp-viscos.eps
 dcure.dvi: dcure-temp.eps dcure-cure.eps dcure-map.eps
-error.dvi: stability.eps norm_dt.eps norm_dx.eps 
+error.dvi: stability.eps norm_dt.eps norm_dx.eps
 heat.dvi: deform_frameX.eps deform_tX_map.eps deform_time.eps
 permeab.dvi: permeab-vf.eps permeab-strain.eps 
 viscosity.dvi: viscosity-temp.eps viscosity-cure.eps viscosity-map.eps
@@ -91,7 +95,7 @@ slides.log: slides.tex
 
 # DOWNLOAD AND UPLOAD OF EXPENSIVE SIMULATION RESULTS
 TGZ = simulations.tar.gz
-$(TGZ): $(DATN)
+$(TGZ): $(DATN) $(DATN)
 	tar czvf $@ $+
 
 .PHONY: download upload
@@ -99,7 +103,8 @@ $(TGZ): $(DATN)
 download:
 	-rm $(TGZ)
 	wget http://wiener.ex.ac.uk/~tom/adapt/$(TGZ)
-	tar xzvf $(TGZ) | xargs touch
+	tar xzvf $(TGZ) 
+	tar tf $(TGZ) | xargs touch
 
 upload: $(TGZ)
 	scp $< wiener:~/Sites/adapt/
