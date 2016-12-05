@@ -95,7 +95,7 @@ slides.log: slides.tex
 
 # DOWNLOAD AND UPLOAD OF EXPENSIVE SIMULATION RESULTS
 TGZ = simulations.tar.gz
-$(TGZ): $(DATN) $(DATN)
+$(TGZ): $(DATN) $(DATDT)
 	tar czvf $@ $+
 
 .PHONY: download upload
