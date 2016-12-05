@@ -9,7 +9,7 @@ This is a git repository of my notes for the ADAPT project.
 * autotools (make)
 * gnuplot
 * texlive (latex, pdflatex)
-* python3 (+ numpy library -- to install it run `pip3 install --user numpy`)
+* python3 (+ numpy, scipy and matplotlib libraries -- to install it run `pip3 install --user numpy scipy matplotlib`)
 * wget (to download results)
 
 ## Compilation

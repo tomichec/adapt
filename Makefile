@@ -7,12 +7,11 @@ PYTHON=python3
 FIGURES = consolidation.pdf heat.pdf permeab.pdf viscosity.pdf dcure.pdf cure.pdf fibre_bed.pdf error.pdf
 
 # as pdf generation uses latex, the target are logfiles -- the pdf is side product
-# slides.log
-LOG = report.log
+LOG = report.log slides.log
 
 .PHONY: all aux
 
-all: $(LOG)
+all: aux $(LOG)
 
 aux: $(FIGURES) element.out galerkin.out 
 
@@ -84,8 +83,7 @@ viscosity.dvi: viscosity-temp.eps viscosity-cure.eps viscosity-map.eps
 	pdfcrop $@ $@
 
 $(LOG): nots.tex $(FIGURES)
-report.log: report.tex
-slides.log: slides.tex
+%.log: %.tex
 	pdflatex $<
 
 
