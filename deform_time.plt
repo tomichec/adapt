@@ -1,5 +1,4 @@
 load 'common.plt'
-load 'consolidation.gpm'
 
 datafile="findiff.dat"
 

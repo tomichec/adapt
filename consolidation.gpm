@@ -1,9 +1,10 @@
-As = 1.				# spring constant -- data fitted
-V0 = 0.55			# intial fibre volume fraction
-Va= 0.68			# maximal fibre volume fraction
-rf = 4e-3			# radius of fibre (mm)
-k = 0.2				# Kozeny constant (1/s)
-R = 8.617			# universal gas constant (eV/K)
+Ef = 230.e3                    # MPa
+beta = 350.                  # unitless
+V0 = 0.55		    # intial fibre volume fraction
+Va= 0.68		    # maximal fibre volume fraction
+rf = 4e-3		    # radius of fibre (mm)
+k = 0.2			    # Kozeny constant (1/s)
+R = 8.617		    # universal gas constant (eV/K)
 
 
 # conversion between celsius and kelvins
@@ -14,7 +15,8 @@ KtC(K) = C-273.15
 vf(strain) = V0 /(1+strain)
 
 # strain as a function of fibre volume fraction
-stress(vf) = As * ((vf/V0 - 1.)/(1/vf - 1/Va)**4) 
+As = 3*pi*Ef/(beta**4)	    # spring constant -- data fitted
+stress(vf) = As * ((vf/V0 - 1.)/(1/vf - 1/Va)**4)
 
 # permeability
 K(vf) = rf**2/(4*k) * (1-vf)**3/vf**2
@@ -41,4 +43,4 @@ Ea = 6.65e4
 m = 0.813
 n = 2.74
 
-dcure(T,cure) =  Aa * exp(-Ea/(R*T)) * cure**m *(1-cure)**n 
+dcure(T,cure) =  Aa * exp(-Ea/(R*T)) * cure**m *(1-cure)**n

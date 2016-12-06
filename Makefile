@@ -63,7 +63,11 @@ deform_tX_map.eps deform_time.eps: findiff.dat
 norm_dx.eps: norm_dx.dat
 norm_dt.eps: norm_dt.dat
 
-%.eps: %.plt common.plt consolidation.gpm
+
+
+# technicaly the consolidation is a dependency only for some plots (see `grep consolidation.gpm *.plt`)
+cure-temp-viscos.eps dcure-cure.eps dcure-map.eps dcure-temp.eps permeab-strain.eps permeab-vf.eps stress-strain.eps stress-vf.eps vf-strain.eps viscosity-cure.eps viscosity-map.eps viscosity-temp.eps : consolidation.gpm
+%.eps: %.plt common.plt
 	gnuplot $< > $@
 
 
@@ -78,7 +82,7 @@ permeab.dvi: permeab-vf.eps permeab-strain.eps
 viscosity.dvi: viscosity-temp.eps viscosity-cure.eps viscosity-map.eps
 
 # rule for DVI figures
-%.pdf: %.dvi
+%.pdf: %.dvi psfrags.tex
 	dvipdf $*.dvi
 	pdfcrop $@ $@
 

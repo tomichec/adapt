@@ -1,5 +1,4 @@
 load 'common.plt'
-# load 'consolidation.gpm'
 
 set key autotitle columnheader reverse left bottom
 

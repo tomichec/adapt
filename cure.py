@@ -1,8 +1,7 @@
-from math import exp
+from math import exp, pi
 
 # global variables
 V0 = 0.55			# intial fibre volume fraction
-Va= 0.68			# maximal fibre volume fraction
 R = 8.617			# universal gas constant (eV/K)
 
 def CtK(C):return C+273.15
@@ -37,7 +36,10 @@ def vfrac(strain):
 
 def stress(vf):
     """ strain as a function of fibre volume fraction"""
-    As = 1.				# spring constant -- data fitted
+    Va= 0.68			# maximal fibre volume fraction
+    Ef = 230                    # GPa
+    beta = 350                  # unitless
+    As = 3*pi*Ef/(beta**4)				# spring constant -- data fitted
     return As * ((vf/V0 - 1.)/(1/vf - 1/Va)**4) 
 
 def perm(vf):

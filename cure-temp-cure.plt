@@ -1,5 +1,4 @@
 load 'common.plt'
-load 'consolidation.gpm'
 
 set key samplen 2 left
 
