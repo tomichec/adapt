@@ -1,4 +1,4 @@
-# ADAPT
+# ADAPT-TS-NOTES
 
 ## Description
 
@@ -11,6 +11,8 @@ This is a git repository of my notes for the ADAPT project.
 * texlive (latex, pdflatex)
 * python3 (+ numpy, scipy and matplotlib libraries -- to install it run `pip3 install --user numpy scipy matplotlib`)
 * wget (to download results)
+
+Tested on GNU/Linux and MAC OS.
 
 ## Compilation
 

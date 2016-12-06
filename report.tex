@@ -1,4 +1,4 @@
-\documentclass[twoside,a4paper,12pt]{article}
+\documentclass[twoside,a4paper,12pt,draft]{article}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -90,13 +90,24 @@
 
 \newcommand{\ie}{{\it i.e.\ }}
 
-% \newcommand{\note}[1]{{\color{red}(#1)}}
-% \newcommand{\QM}{{\color{red}(?)}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ifdraft conditional
+% http://tex.stackexchange.com/questions/49277/what-does-the-draft-mode-change
+% http://tex.stackexchange.com/questions/21234/doing-something-only-when-the-draft-option-is-on
+\usepackage{ifdraft}
 
-\newcommand{\note}[1]{}
-\newcommand{\QM}{}
+\ifdraft{%
+\newcommand{\note}[1]{{\color{red}(#1)}}
+\newcommand{\QM}{{\color{red}(?)}}
 \newcommand{\X}[1]{{\color{brown}\st#1} } % removed text
 \newcommand{\A}[1]{{\color{purple}#1}} % added text
+}{% else
+\newcommand{\note}[1]{}
+\newcommand{\QM}{}
+\newcommand{\X}[1]{\relax} % removed text
+\newcommand{\A}[1]{#1} % added text
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \input{nots.tex}
 
