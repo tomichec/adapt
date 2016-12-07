@@ -544,7 +544,7 @@ $\disp{i}{j} \approx u(x_i,t_j)$. Then we find the discretisation as
 %
 \begin{subequations}
   \begin{align}
-    u_{i,t}^j  =& \frac{\disp{i}{j+1} - \disp{i}{j}}{\dt} + \bigO{\dt}, \\
+    u_{i,t}^j  =& \frac{\disp{i}{j+1} - \disp{i}{j}}{\dt} + \bigO{\dt}, \label{eq:fin-diff-a}\\
     u_{i,xx}^j =& \frac{\disp{i+1}{j} - 2\disp{i}{j} + \disp{i-1}{j}}{\dx^2} + \bigO{\dx^2},
   \end{align}\label{eq:fin-diff}
 \end{subequations}
@@ -996,7 +996,7 @@ and beyond which the viscosity model is no longer valid.
 \end{figure}
 
 
-\subsection{Using Viscosity Model}
+\subsection{Numerical Computation of Viscosity Model}
 
 
 Implementing the viscosity model into the model of the heat equation
@@ -1029,27 +1029,80 @@ using expression \eqref{eq:viscosity} and the cure $\cure_i$ is
 approximated using equation \eqref{eq:cure-fe}. The permeability
 $K=3.56\ee{-6}$ which corresponds to the fibre volume fraction $\vfrac = 0.6$.
 
-\subsection{Fibre Volume Fraction and Effects on Permeability and Stiffness}
+
+
+\subsection{Numerical Computation of Spatial Model}
+
 
 Considering the case of static equilibrium $\stress_{,x}(x,t)=0$, and
 using \eqref{eq:flow-stress}, \eqref{eq:darcy-link} and assuming that
-the Young's modulus $\young = 1$ we can write
+the Young's modulus $\young = 1$ \note{TODO: use realistic $\young$} we can write
 %
 \begin{align}
   0 = \efstress_{,x} - \frac{\viscos(t)}{\permeab(x)}    u_{,t}, \label{eq:flow-stres_x}
 \end{align}
 %
-where $u_{,t}$ is given in \eqref{eq:fin-diff} allows to derive the
-time integration as
+where $u_{,t}$ is discretised as shown in \eqref{eq:fin-diff}. Then we
+derive the time integration as
 \begin{align}
-  \disp{}{j+1} = \disp{}{j} + \dt \frac{\permeab(x)}{\viscos(t_j)}\efstress_{,x} + \cO{\dt^2},
+  \disp{i}{j+1} = \disp{i}{j} + \dt \frac{\permeab(x_i)}{\viscos(t_j)}\efstr{i,x}{j} + \cO{\dt^2},
 \end{align}
 %
-where $\disp{}{j+1} \approx u(x,t_j)$.
+where $\disp{}{j+1} \approx u(x,t_j)$, the $\viscos(t_j)$ is given in
+\eqref{eq:viscosity} and pemeability $\permeab(x_i)$ in
+\eqref{eq:permeability}.
 
-, to derive the
-formula for $ \efstress_{,x}$ we need to do a couple of intermediate
-calculations.  First, we write the formula for strain as a finite
+The space derivative of effective stress is found using finite
+differences as
+%
+\begin{align}
+  \label{eq:fin-diff-efstress}
+  \efstress_{i,x}^j  =& \frac{\efstr{i+1}{j} - \efstr{i}{j}}{\dx} + \bigO{\dx}.
+\end{align}
+%
+where the effective stiffness $\efstr{i}{j}$ is obtained using
+\eqref{eq:stress-nonlin}.
+
+The effective stiffness and permeability at a point $x_i$ require the
+calculation of $\vfrac(x_i,t_j)$. This is found using strain found as
+%
+\begin{align}
+ \strain(x_i,t_j) =&  \frac{\disp{i+1}{j} - \disp{i}{j}}{\dx} + \cO{\dx},
+\end{align}
+%
+which is used for the calculation of the fibre volume fraction as
+given in \eqref{eq:fibre-volume}.
+
+\subsection{Boundary Conditions}
+
+We consider a situation of a one dimensional fibre bed consolidation
+as shown on \figref{fig:fibre-bed}. This is a simplification of a
+three dimensional problem which considers a cross-section of spatialy
+extended stack of plies of carbon fibres in two dimensions. The
+considered dimension is $x$.
+
+\begin{figure}
+  \centering
+  \includegraphics{fibre_bed.pdf}
+  \caption{Diagram of one dimensional fibre bed consolidation. \note{Perhaps move to the front}}
+  \label{fig:fibre-bed}
+\end{figure}
+
+The pressure is applied from the permeable free top boundary with the
+reference coordinate $X=L$, the bottom boundary with the coordinate
+$X=0$ is impermeable and fixed.  Mathematicaly this can be expressed
+as $u(0,t) = 0$, $\press_{,x}(0,t) =0$ for the bottom boundary and
+$\press_b = -\pressatm$ at the top boundary.
+
+
+
+
+
+\subsection{Error Estimation}
+
+To estimate the order of error we have to expand the formula \QM
+
+First, we write the formula for strain as a finite
 difference
 %
 \begin{align}
@@ -1117,19 +1170,19 @@ $\permeab(\vfrac(x))$ from \eqref{eq:permeability}  and \eqref{eq:vfrac-findiff}
 
 
 
-\subsection{TODO}
+% \subsection{TODO}
 
-Here we describe the implementation of the models including the
-physical units. To simplify the process, the implementation will be
-done in several steps as follows
-%
-\begin{enumerate}
-\item constant fibre volume fraction of $\vfrac = 0.6$, temperature $\temp=\QM$, and degree of cure $\cure$; this gives a linear model with appropriate physical units, \label{en:all-const}
-\item fibre volume fraction dependent on the deformation according to formula \eqref{eq:fibre-volume}, the remaining variables as in previous case,
-\item ramped temperature $\temp_{,t} = q$ which leads to variable degree of cure $\cure$.
-\end{enumerate}
+% Here we describe the implementation of the models including the
+% physical units. To simplify the process, the implementation will be
+% done in several steps as follows
+% %
+% \begin{enumerate}
+% \item constant fibre volume fraction of $\vfrac = 0.6$, temperature $\temp=\QM$, and degree of cure $\cure$; this gives a linear model with appropriate physical units, \label{en:all-const}
+% \item fibre volume fraction dependent on the deformation according to formula \eqref{eq:fibre-volume}, the remaining variables as in previous case,
+% \item ramped temperature $\temp_{,t} = q$ which leads to variable degree of cure $\cure$.
+% \end{enumerate}
 
-Solving the point \ref{en:all-const} we write down the model using the physical units.
+% Solving the point \ref{en:all-const} we write down the model using the physical units.
 
 
 
