@@ -7,11 +7,11 @@ PYTHON=python3
 FIGURES = consolidation.pdf heat.pdf permeab.pdf viscosity.pdf dcure.pdf cure.pdf fibre_bed.pdf error.pdf
 
 # as pdf generation uses latex, the target are logfiles -- the pdf is side product
-LOG = report.log slides.log
+AUX = report.aux slides.aux
 
 .PHONY: all aux
 
-all: aux $(LOG)
+all: aux $(AUX)
 
 aux: $(FIGURES) element.out galerkin.out 
 
@@ -23,8 +23,11 @@ aux: $(FIGURES) element.out galerkin.out
 %.dat: %.py
 	$(PYTHON) $< > $@
 
-# findiff file, which requires command line arguments -- DOES IT WORK?
+# findiff file, which requires command line arguments
 findiff%.dat: findiff.py
+	$(PYTHON) $< $(subst _, ,$*) > $@
+
+consol%.dat: findiff_consol.py
 	$(PYTHON) $< $(subst _, ,$*) > $@
 
 # transpose of the datafile
@@ -56,14 +59,20 @@ norm_dx.dat: | $(DATN)
 			awk -f norm.awk findiff-t_1e-7_-n_1000.dat $$i;\
 		done' > $@
 
+# simulation results for the "realistic simulations"
+.PRECIOUS: $(CONSOL)
+CONSOL = $(foreach n, 100 30 10, consol-t_1e-4_-n_$n.dat)
+
+.PHONY: consol
+consol: $(CONSOL)
+
+
 #  prerequisites for the EPS figure pannels
 cure-temp-cure.eps cure-temp-viscos.eps: cure.dat
 deform_frameX.eps: trans_findiff.awk.dat
 deform_tX_map.eps deform_time.eps: findiff.dat
 norm_dx.eps: norm_dx.dat
 norm_dt.eps: norm_dt.dat
-
-
 
 # technicaly the consolidation is a dependency only for some plots (see `grep consolidation.gpm *.plt`)
 cure-temp-viscos.eps dcure-cure.eps dcure-map.eps dcure-temp.eps permeab-strain.eps permeab-vf.eps stress-strain.eps stress-vf.eps vf-strain.eps viscosity-cure.eps viscosity-map.eps viscosity-temp.eps : consolidation.gpm
@@ -86,8 +95,10 @@ viscosity.dvi: viscosity-temp.eps viscosity-cure.eps viscosity-map.eps
 	dvipdf $*.dvi
 	pdfcrop $@ $@
 
-$(LOG): nots.tex $(FIGURES)
-%.log: %.tex
+$(AUX): nots.tex $(FIGURES)
+%.aux: %.tex
+	pdflatex $<
+	bibtex $@
 	pdflatex $<
 
 

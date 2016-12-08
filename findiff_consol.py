@@ -4,13 +4,24 @@ import numpy as np
 import sys
 import argparse
 
+##################################################
+# treat warnings as exceptions
+# http://stackoverflow.com/questions/15933741/how-do-i-catch-a-numpy-warning-like-its-an-exception-not-just-for-testing
+import warnings
+
+warnings.filterwarnings('error')
+
+# the warnings are treated as exceptions. This is because the
+# simulation is unstable for specific combination of dt and dx. Then
+# the results get erroreous values which make the simulation release
+# warnings. However, since the results do not make sense at this
+# point, it can be just treated as error.
+
+##################################################
+# import for the model 
 from cure import viscos, vfrac, perm, stress, CtK
 
-# dcure, CtK, ramp_temp, press_loc
-
-DEBUG = 0
-
-def print_results(t, u,tfmt='%.02f',every = 1):
+def print_results(t, u,tfmt='%.08f',every = 1):
     """Print results of the heat equation at time 't' in time format 'tfmt' and every 'every' column of deformation 'u'."""
     print(tfmt % t, end="")
     for i in range(0,len(u),every):
@@ -50,7 +61,7 @@ if __name__ == '__main__':
 
     ##################################################
     # setup the solver
-    L = 1e-2                         # length of the material
+    L = 1e-2                         # length of the material (m)
     Nx = args.nodes                       # number of space steps
     dx = L/Nx                     # space step
     assert (Nx*dx == L)
@@ -62,7 +73,7 @@ if __name__ == '__main__':
         dt = args.time_step  # time step -- from the command line argument
 
 
-    T = 3600*3                     # duration of the simulation
+    T = 30                     # duration of the simulation
     Nt = int(T/dt)+1            # numer of time steps
 
     # allocate the arrays for results
@@ -78,88 +89,58 @@ if __name__ == '__main__':
 
     ##################################################
     # setup the printing
-    ppt = 60                  # printing period of time
-    pft = int(ppt/dt)           # printing frecuency of time (TODO: check what happens when dt=1e-5, the round is a quick way around)
+    ppt = 1.0                  # printing period of time
+    pft = int(round(ppt/dt,6)) # printing frecuency of time (TODO: check what happens when dt=1e-{5,9,15}, the round is a quick way around)
     assert (pft*dt == ppt)      # assert if the printing period is compatible with the time step size
 
-    ppx = 0.001                   # printing period of space
+    ppx = L*0.1                   # printing period of space
     pfx = int(ppx/dx)           # printing frecuency of space (every column)
     assert (pfx*dx == ppx)      # assert if the printing period is compatible with the time step size
 
     # print headers
     print('000',end="")         # dummy time header
     for i in range(0,Nx+1,pfx):
-        print('\t%.1f'% (i*dx), end="") # print frame of reference
+        print('\t%.3f'% (i*dx), end="") # print frame of reference
     print()
 
     print_results(0,u,every = pfx)          # print initial conditioins
-
-    # TEMPORARY COMMENT -- THIS WILL BE REMOVED AND MERGED WITH THE DEVELOPEMENT LOOP BELLOW
-
-    # # j is index for time, and i is index for space, the order of time and
-    # # space is swaped wrt report.pdf
-    # for j in range(1,Nt):
-
-    #     # boundary conditions...
-    #     u[0] = bc0                  # ...at the bottom,...
-    #     # ... and at the top
-    #     if j < NR:
-    #         u[Nx] = R*dt*(j)
-    #     else:
-    #         u[Nx] = R*dt*NR
-
-    #     # # numerical boundary conditions
-    #     # du[0] = 2*(u[1] -2*u[0])/dx**2
-    #     # du[Nx-1] = 0
-
-    #     # finite difference for the space
-    #     for i in range(1,Nx):
-    #         du[i] = (u[i-1] - 2*u[i] + u[i+1])/(dx**2) - g
-
-    #     u = u + dt*du
-
-    #     # print the results
-    #     if not (j % pft):
-    #         print_results(dt*j,u,every = pfx)
-    # END OF TEMPORARY COMMENT -- TO BE MERGED WITH THE FOLLOWING LOOP
 
     # initial conditions
     cure = 0
     T = CtK(150)
     Patm = 0.1                 # atmospheric pressure (MPa)
-    # young = 50                # Young modulus for carbon fibre (MPa)
-    young = 1.
+    young = 1.                # Young modulus (for carbon fibre ~50 (MPa))
 
     # j is index for time, and i is index for space, the order of time and
     # space is swaped wrt report.pdf
     for j in range(1,Nt):
 
         # finite difference for the space
-        strain = (u[1] - 0)/dx # imposes bottom boundary condition (u[0] = 0)
-        Vf = vfrac(strain)
-        efstr = stress(Vf)
+        strain_prev = (u[1] - 0)/dx # imposes bottom boundary condition (u[0] = 0)
+        efstr_prev = stress(vfrac(strain_prev))
         for i in range(1,Nx):
-            # permeability and Vf and current point
-            permeab = perm(Vf)
+            # strain for permeability at current point
+            strain = (u[i+1] - u[i-1])/(2*dx)
 
             # Vf at next point
-            strain = (u[i+1] - u[i])/dx
-            Vf = vfrac(strain)
-            efstr_next = stress(Vf)
+            strain_next = (u[i+1] - u[i])/dx
+            efstr_next = stress(vfrac(strain_next))
 
             # finite difference
-            du[i] = (permeab/viscos(T,cure))*(efstr_next - efstr)/dx
+            du[i] = -(perm(vfrac(strain))/viscos(T,cure))*(efstr_next - efstr_prev)/dx
 
             # update the volume fraction for the next point
-            efstr = efstr_next
+            efstr_prev = efstr_next
 
-        # imposes top boundary condition because the top boundary is
-        # permeable, there is no fibre out of the boundary 
-        # i.e. effective stress is 0
-        permeab = perm(Vf)
-        du[Nx] = (permeab/viscos(T,cure))*(Patm - efstr)/dx
+        # bottom boundary is implicitely imposed as du[0] = 0
 
-        u = u + dt*du*young
+        # impose top boundary condition
+        strain = strain_next        # for permeability at current point
+        efstr = efstr_next
+        du[Nx] = -(perm(vfrac(strain))/viscos(T,cure))*(Patm - efstr)/dx
+
+        # update the increment
+        u += dt*du*young
 
         # cure dynamics -- decoupled from the space calculation
         # temp = CtK(ramp_temp(time))
