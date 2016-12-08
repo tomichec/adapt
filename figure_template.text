@@ -17,12 +17,8 @@
 
 \begin{document}
 
-  \begin{tabular}{l@{}l@{}l}
-    % \includegraphics[width=0.33\linewidth]{deform.eps}&    \includegraphics[width=0.33\linewidth]{flow.eps}&
-    % \includegraphics[width=0.34\linewidth]{surf.eps}\\
-        \includegraphics{deform_time.eps}&    \includegraphics{deform_frameX.eps}&
-                                                     \includegraphics{deform_tX_map.eps}\\
-    (a)&(b)&(c)
-  \end{tabular}
+\begin{tabular}{l@{}l@{}l}
+\tablemacro
+\end{tabular}
 
 \end{document}
