@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
     # initial conditions
     cure = 0
-    T = CtK(150)
+    temp = CtK(150)
     Patm = 0.1                 # atmospheric pressure (MPa)
     young = 1.                # Young modulus (for carbon fibre ~50 (MPa))
 
@@ -127,7 +127,7 @@ if __name__ == '__main__':
             efstr_next = stress(vfrac(strain_next))
 
             # finite difference
-            du[i] = -(perm(vfrac(strain))/viscos(T,cure))*(efstr_next - efstr_prev)/dx
+            du[i] = -(perm(vfrac(strain))/viscos(temp,cure))*(efstr_next - efstr_prev)/dx
 
             # update the volume fraction for the next point
             efstr_prev = efstr_next
@@ -137,7 +137,7 @@ if __name__ == '__main__':
         # impose top boundary condition
         strain = strain_next        # for permeability at current point
         efstr = efstr_next
-        du[Nx] = -(perm(vfrac(strain))/viscos(T,cure))*(Patm - efstr)/dx
+        du[Nx] = -(perm(vfrac(strain))/viscos(temp,cure))*(Patm - efstr)/dx
 
         # update the increment
         u += dt*du*young
