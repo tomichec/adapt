@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
 
     T = 30                     # duration of the simulation
-    Nt = int(T/dt)+1            # numer of time steps
+    Nt = int(round(T/dt,6))+1            # numer of time steps
 
     # allocate the arrays for results
     u = np.zeros(Nx+1)            # initial conditions
