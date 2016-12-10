@@ -11,8 +11,8 @@ titlefit = sprintf("{ORD}({DX}^{%.2f})",m)
 # set format x "10^{%T}" 
 # set format y "10^{%T}" 
 
-set ytics 2
-set xtics 1
+set ytics 1
+set xtics 0.5
 
 # L for logarithmic
 set ylabel "LNORM"

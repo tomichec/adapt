@@ -62,7 +62,7 @@ norm_dt.dat: | $(DATDT)
 			DT=`echo $$i | sed -e "s/findiff-t_//" -e "s/.dat//"`;\
 			echo -ne "$$DT\t";\
 			awk -f norm.awk $(firstword $(DATDT)) $$i;\
-		done| awk "NR>1{print log(\$$1),log(\$$2)}"' > $@
+		done| awk "NR>1{print log(\$$1)/log(10),log(\$$2)/log(10)}"' > $@
 
 norm_dx.dat: | $(DATN)
 	bash -c 'for i in $(DATN);\
@@ -70,7 +70,7 @@ norm_dx.dat: | $(DATN)
 			N=`echo $$i | sed -e "s/findiff-t_1e-7_-n_//" -e "s/.dat//"`;\
 			echo print\(1/$$N,end=\"\\t\"\) | $(PYTHON);\
 			awk -f norm.awk $(firstword $(DATN)) $$i;\
-		done| awk "NR>1{print log(\$$1),log(\$$2)}"' > $@
+		done| awk "NR>1{print log(\$$1)/log(10),log(\$$2)/log(10)}"' > $@
 
 norm_dx_consol.dat: | $(DATCONDX)
 	bash -c 'for i in $(DATCONDX);\
@@ -78,7 +78,7 @@ norm_dx_consol.dat: | $(DATCONDX)
 			N=`echo $$i | sed -e "s/consol-t_1e-6_-n_//" -e "s/.dat//"`;\
 			echo print\(1/$$N,end=\"\\t\"\) | $(PYTHON);\
 			awk -f norm.awk $(firstword $(DATCONDX)) $$i;\
-		done| awk "NR>1{print log(\$$1),log(\$$2)}"' > $@
+		done| awk "NR>1{print log(\$$1)/log(10),log(\$$2)/log(10)}"' > $@
 
 # simulation results for the "realistic simulations"
 consol%.eps: consol%.dat common.plt consol_tX_map.plt

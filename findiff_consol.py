@@ -106,8 +106,8 @@ if __name__ == '__main__':
     pft = int(round(ppt/dt,6)) # printing frecuency of time (TODO: check what happens when dt=1e-{5,9,15}, the round is a quick way around)
     assert (pft*dt == ppt)      # assert if the printing period is compatible with the time step size
 
-    ppx = L*0.1                   # printing period of space
-    pfx = int(ppx/dx)           # printing frecuency of space (every column)
+    ppx = round(L*0.1,6)                   # printing period of space
+    pfx = int(round(ppx/dx,6))           # printing frecuency of space (every column)
     assert (pfx*dx == ppx)      # assert if the printing period is compatible with the time step size
 
     # print headers
