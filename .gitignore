@@ -16,3 +16,7 @@
 *.snm
 *.toc
 *~
+*_fig.tex
+_region_.tex
+__pycache__/
+report.prv/

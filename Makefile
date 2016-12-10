@@ -15,12 +15,16 @@ FIG = consolidation\
 
 FIGURES = $(foreach f, $(FIG), $f_fig.pdf) fibre_bed_diag.pdf
 
+DATCONDX = $(foreach n, 200 170 130 100 70 30 10, consol-t_1e-6_-n_$n.dat)
+
+
+
 # as pdf generation uses latex, the target are logfiles -- the pdf is side product
 AUX = report.aux slides.aux
 
 .PHONY: all aux
 
-all: aux $(AUX)
+all: aux $(AUX) $(DATCONDX)
 
 aux: $(FIGURES) element.out galerkin.out 
 
@@ -57,19 +61,28 @@ norm_dt.dat: | $(DATDT)
 		do \
 			DT=`echo $$i | sed -e "s/findiff-t_//" -e "s/.dat//"`;\
 			echo -ne "$$DT\t";\
-			awk -f norm.awk findiff-t_1e-7.dat $$i;\
-		done' > $@
+			awk -f norm.awk $(firstword $(DATDT)) $$i;\
+		done| awk "NR>1{print log(\$$1),log(\$$2)}"' > $@
 
 norm_dx.dat: | $(DATN)
 	bash -c 'for i in $(DATN);\
 		do\
 			N=`echo $$i | sed -e "s/findiff-t_1e-7_-n_//" -e "s/.dat//"`;\
 			echo print\(1/$$N,end=\"\\t\"\) | $(PYTHON);\
-			awk -f norm.awk findiff-t_1e-7_-n_1000.dat $$i;\
-		done' > $@
+			awk -f norm.awk $(firstword $(DATN)) $$i;\
+		done| awk "NR>1{print log(\$$1),log(\$$2)}"' > $@
+
+norm_dx_consol.dat: | $(DATCONDX)
+	bash -c 'for i in $(DATCONDX);\
+		do\
+			N=`echo $$i | sed -e "s/consol-t_1e-6_-n_//" -e "s/.dat//"`;\
+			echo print\(1/$$N,end=\"\\t\"\) | $(PYTHON);\
+			awk -f norm.awk $(firstword $(DATCONDX)) $$i;\
+		done| awk "NR>1{print log(\$$1),log(\$$2)}"' > $@
 
 # simulation results for the "realistic simulations"
-CONSOL = $(foreach n, 10 70 100, consol-t_1e-4_-n_$n.dat)
+# $(foreach n, 10 70 100, consol-t_1e-4_-n_$n.dat)
+CONSOL = $(foreach n, 10 70, consol-t_1e-4_-n_$n.dat)
 
 consol%.eps: consol%.dat common.plt consol_tX_map.plt
 	echo 'datafile="$<"' | cat - $(lastword $+) | gnuplot > $@
@@ -80,12 +93,14 @@ deform_frameX.eps: trans_findiff.awk.dat
 deform_tX_map.eps deform_time.eps: findiff.dat
 norm_dx.eps: norm_dx.dat
 norm_dt.eps: norm_dt.dat
+norm_dx_consol.eps: norm_dx_consol.dat
 
 # technicaly the consolidation is a dependency only for some plots (see `grep consolidation.gpm *.plt`)
 cure-temp-viscos.eps dcure-cure.eps dcure-map.eps dcure-temp.eps permeab-strain.eps permeab-vf.eps stress-strain.eps stress-vf.eps vf-strain.eps viscosity-cure.eps viscosity-map.eps viscosity-temp.eps : consolidation.gpm
 %.eps: %.plt common.plt
 	cat $< | gnuplot > $@
 
+# the eps targets are not required for tex files, however, they are used by tablemacro.pl
 consolidation_fig.tex: vf-strain.eps stress-vf.eps stress-strain.eps
 cure_fig.tex: cure-temp-cure.eps cure-temp-viscos.eps
 dcure_fig.tex: dcure-temp.eps dcure-cure.eps dcure-map.eps
@@ -93,7 +108,7 @@ error_fig.tex: stability.eps norm_dt.eps norm_dx.eps
 heat_fig.tex: deform_time.eps deform_frameX.eps deform_tX_map.eps
 permeab_fig.tex: permeab-vf.eps permeab-strain.eps 
 viscosity_fig.tex: viscosity-temp.eps viscosity-cure.eps viscosity-map.eps
-consol_fig.tex: $(CONSOL:.dat=.eps)
+consol_fig.tex: $(CONSOL:.dat=.eps) norm_dx_consol.eps
 
 # TODO: the _fig.tex are not removed -- why?
 %_fig.tex: | tablemacro.pl figure_template.text
@@ -104,7 +119,7 @@ consol_fig.tex: $(CONSOL:.dat=.eps)
 
 # rule for DVI figures
 # is psfrags.tex needed as dependency?
-%_fig.pdf: %_fig.dvi
+%_fig.pdf: %_fig.dvi psfrags.tex
 	dvipdf $<
 	pdfcrop $@ $@
 # TODO: duplicated recipe -- can be made more concise?
@@ -125,7 +140,7 @@ $(AUX): nots.tex $(FIGURES)
 
 # DOWNLOAD AND UPLOAD OF EXPENSIVE SIMULATION RESULTS
 TGZ = simulations.tar.gz
-$(TGZ): $(DATN) $(DATDT) $(CONSOL)
+$(TGZ): $(DATN) $(DATDT) $(CONSOL) $(DATCONDX)
 	tar czvf $@ $+
 
 .PHONY: download upload
