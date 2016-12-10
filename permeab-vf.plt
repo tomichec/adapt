@@ -9,9 +9,8 @@ set xrange [V0:xmax]
 set xtics 0.025
 set ytics 1e-6
 
-set format y '%h'
+set format y "%.0s{I}10^{%T}"
 
-# "%e\cdot10^{%T}"
 # '%.0s*10^%T'
 
 set xlabel "VFRAC"

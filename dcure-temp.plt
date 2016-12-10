@@ -10,7 +10,7 @@ set xtics 50
 # set ytics 0.0005
 
 set logscale y
-set format y "%h"
+set format y "10^{%T}"
 
 set xlabel "TEMP"
 set ylabel "DCURE"
