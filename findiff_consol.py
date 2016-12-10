@@ -20,8 +20,9 @@ warnings.filterwarnings('error')
 ##################################################
 # import for the model 
 from cure import viscos, vfrac, perm, stress, CtK
+from cure import dcure, ramp_temp
 
-def print_results(t, u,tfmt='%.08f',every = 1):
+def print_results(t, u,tfmt='%.02f',every = 1):
     """Print results of the heat equation at time 't' in time format 'tfmt' and every 'every' column of deformation 'u'."""
     print(tfmt % t, end="")
     for i in range(0,len(u),every):
@@ -49,6 +50,18 @@ if __name__ == '__main__':
                         default=10,
                         help="number of nodes in space (default 10)")
 
+    # duration of the simulation
+    parser.add_argument("-d","--duration",
+                        type=float, 
+                        default=10.0,
+                        help="duration of the simulation (default 30)")
+
+    # enable cure
+    parser.add_argument("-c",
+                        "--cure",
+                        action="store_true",
+                        help="enable cure according to experimental protocol (otherwise fixed).")
+
     # select an optimal time step size
     # TODO: make it mutualy exclusive with --time-step option
     parser.add_argument("-o",
@@ -73,7 +86,7 @@ if __name__ == '__main__':
         dt = args.time_step  # time step -- from the command line argument
 
 
-    T = 30                     # duration of the simulation
+    T = args.duration           # duration of the simulation
     Nt = int(round(T/dt,6))+1            # numer of time steps
 
     # allocate the arrays for results
@@ -106,20 +119,26 @@ if __name__ == '__main__':
     print_results(0,u,every = pfx)          # print initial conditioins
 
     # initial conditions
-    cure = 0
-    temp = CtK(150)
+    cure = 1e-3                 # initial conditions for cure
+    temp = CtK(107.222)
     Patm = 0.1                 # atmospheric pressure (MPa)
-    young = 1.                # Young modulus (for carbon fibre ~50 (MPa))
+    young = 50.                # Young modulus (for carbon fibre ~50 (MPa))
 
     # j is index for time, and i is index for space, the order of time and
     # space is swaped wrt report.pdf
     for j in range(1,Nt):
+
+        # cure dynamics -- decoupled from the space calculation
+        if (args.cure):
+            temp = CtK(ramp_temp(j*dt))
+            cure += dt*dcure(temp,cure)
 
         # finite difference for the space
         strain_prev = (u[1] - 0)/dx # imposes bottom boundary condition (u[0] = 0)
         efstr_prev = stress(vfrac(strain_prev))
         for i in range(1,Nx):
             # strain for permeability at current point
+            # maybe permeability could use just strain_next and save this calculation?
             strain = (u[i+1] - u[i-1])/(2*dx)
 
             # Vf at next point
@@ -141,10 +160,6 @@ if __name__ == '__main__':
 
         # update the increment
         u += dt*du*young
-
-        # cure dynamics -- decoupled from the space calculation
-        # temp = CtK(ramp_temp(time))
-        # cure = cure + dt*dcure(temp,cure)
 
         # print the results
         if not (j % pft):

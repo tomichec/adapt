@@ -6,7 +6,7 @@ load 'common.plt'
 set pm3d map interpolate 0,0
 set palette gray
 set colorbox front
-# set cbtics 0.001
+set cbtics 0.001
 
 set contours
 
@@ -17,6 +17,6 @@ set ylabel "TIME"
 set xlabel "FRAME"
 
 set xtics 0.005
-set ytics 10
+set ytics 2
 
 splot datafile matrix nonuniform t ''
