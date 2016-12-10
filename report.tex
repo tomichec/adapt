@@ -1,4 +1,4 @@
-\documentclass[twoside,a4paper,12pt,draft]{article}
+\documentclass[twoside,a4paper,12pt]{article}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -87,8 +87,13 @@
 \newcommand{\python}{\prog{Python}}
 \newcommand{\numpy}{\prog{NumPy}}
 \newcommand{\lapack}{\prog{LAPACK}}
+\newcommand{\gnuplot}{\prog{gnuplot}}
 
 \newcommand{\ie}{{\it i.e.\ }}
+
+% loose fraction
+% https://en.wikibooks.org/wiki/LaTeX/Mathematics
+\newcommand*\rfrac[2]{{}^{#1}\!/\!_{#2}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ifdraft conditional
@@ -416,11 +421,11 @@ different length.
 
 This section aims to develop a model combining the mechanics for solid
 and flow. This aims to simulate the formation of the composite
-structure of carbon fibre and resin. During the formation the material
+structure of carbon fiber and resin. During the formation the material
 is placed into a pressure chamber, where a pressure is applied to the
 material in an elevate temperatures. Due to the high temperature, the
 resin becomes liquid and the pressure causes the flow of the resin out
-of the material such that the carbon fibres become compressed
+of the material such that the carbon fibers become compressed
 together. Consequently the resin undergoes a process of cure, that
 causes a solidification of the resin so that the material is ``glued''
 together. The following text is motivated by an article by
@@ -441,7 +446,7 @@ $\efstress(x,t)$ that are dependent both on the reference position $x$ and
 the time $t$. The effective stress is connected with the
 displacement by a constitutive law
 \begin{align}
-\efstress = u_{,x},
+\efstress = u_{,x}, \label{eq:efstress-strain}
 \end{align}
 %
 where the parameters describing the properties of the material are
@@ -482,7 +487,7 @@ is stoped at the possition reached after $\duration$.
 
 %
 
-The flow of the resin through the fibre bed will follow Darcy's law.
+The flow of the resin through the fiber bed will follow Darcy's law.
 This law describes the flow of a fluid through a porous material, and
 is analogous to Ohm's law from the theory of electric circuits. The
 Darcy's law reads as
@@ -490,7 +495,7 @@ Darcy's law reads as
 \begin{align}
   \flow(x,t) = -\frac{\permeab(x)}{\viscos(\temp,\cure)} \press_{,x}. \label{eq:darcy}
 \end{align}
-where the $\flow(x,t)$ is the velocity of the flow, $\permeab$ is a fibre bed
+where the $\flow(x,t)$ is the velocity of the flow, $\permeab$ is a fiber bed
 permeability (due to the size of the pores),
 %
 %
@@ -498,7 +503,7 @@ $\viscos$ is a resin viscosity (dependent on temperature $\temp$ and
 degree of cure of the resin $\cure$).  For simplicity, let's consider
 a case where $\permeab/\viscos=1$.
 %
-The velocity of the flow constrains the position of the fibre bed,
+The velocity of the flow constrains the position of the fiber bed,
 hence by linking the definition of velocity $\flow = - u_{,t}$ (recall the
 notation $u_{,t} = \partial u/\partial t$) with the Darcy's law, we
 can write an inital value problem for the internal points of the
@@ -623,7 +628,7 @@ corresponds to the values of $\dt$ under the line.
   \includegraphics{heat_fig.pdf}
   \caption{Finite difference solution of equation
     \eqref{eq:heat}. Panel (a) shows the dependence of the deformation
-    of the fibre bed on time at the boundaries $x=0$ (violet line) and
+    of the fiber bed on time at the boundaries $x=0$ (violet line) and
     $x=1$ (yellow line) and in the interior points $x=0.2$ (green
     line) and $x=0.5$ (blue line) (b) shows the dependence of the
     displacement on the possition in the frame of reference $x$ at the
@@ -645,8 +650,6 @@ $\dx = 0.1$ such that the space contains $N_x=10$ nodes. The initial
 conditions $\disp{i}{0} = 0$. The bottom boundary is fixed at
 $\disp{0}{t} = 0$, while the top boundary move with a speed $R=1$ such
 that $\disp{N_x}{j} = j \dt R$.
-
-
 \begin{figure}
   \centering
   \includegraphics{error_fig.pdf}
@@ -654,8 +657,9 @@ that $\disp{N_x}{j} = j \dt R$.
     boundary between stable and unstable region in the $\dx$--$\dt$
     plane according to \eqref{eq:stable-boundary} where $\max(D) =
     1$. Panel (b) and (c) shows the norm of the error in the
-    computation of the heat equation in (b) dependent on $\dt$ at
-    $\dx=0.1$, in (c) as dependent on $\dx$ at $\dt=1e-7$.}
+    computation of the heat equation and fitted line (green) in (b)
+    dependent on $\dt$ at $\dx=0.1$, in (c) as dependent on $\dx$ at
+    $\dt=1\ee{-7}$.}
   \label{fig:error-analysis}
 \end{figure}
 
@@ -666,13 +670,17 @@ panels (b) and (c) show the dependence of the error on the time step
 and on the grid step. The norm was computed using the formula
 %
 \begin{align}
-  \errU = \norm{\hat{u} - u} = \frac{1}{N_t N_x}\sqrt{ \sum_{i,j} \left(\hat{u}_{i}^{j} - \disp{i}{j}\right)^2}
+  \errU = \norm{\hat{u} - u} = \frac{1}{N_t N_x}\sqrt{ \sum_{i,j} \left(\hat{u}_{i}^{j} - \disp{i}{j}\right)^2} \label{eq:norm}
 \end{align}
 where $N_t$ and $N_x$ is the number of time and grid points of in the
 stored data files, and $\hat{u}$ corresponds to accurate solution. The
-time step of the accurate solution was $\dt = 1\ee{-7}$. The space step
-of accurate solution was $\dx=0.1$ and $\dx=1\ee{-3}$ in panel (b) and
-(c) respectively.
+time step of the accurate solution was $\dt = 1\ee{-7}$. The space
+step of accurate solution was $\dx=0.1$ and $\dx=1\ee{-3}$ in panel
+(b) and (c) respectively. The green line was a line $f(x) = m x + b$
+fitted to the data points using \gnuplot\ fitting algorithm. The final
+set of parameters found by \gnuplot\ were $m = 2.02429$ and
+$b=-9.7797$ for $x = \dx$. The final set of parameters found for
+$x=\dt$ were $m=1.01643$ and $b=-6.43138$.
 
 The simulation time of the solution with $\dx=1\ee{-3}$, $\dt=1\ee{-7}$
 was $1$ hour $43$ minutes.
@@ -687,7 +695,7 @@ below.
 %
 \lstinputlisting[language=python, style=mystyle, breaklines=true]{findiff.py}
 
-\subsection{Fibre Consolidation Model}
+\subsection{Fiber Consolidation Model}
 
 The goal of the previous text was to develop a simple toy example of a
 type of equations describing the system. In the process we have ignored
@@ -699,9 +707,9 @@ models are shown in \tabref{tab:phys-const}.
 
 The first assumption we made was that the stress is a linear function
 of the strain $\varepsilon = u_{,x}$. This is only correct for very
-small deformations when the volume fraction of the fibre does not
+small deformations when the volume fraction of the fiber does not
 change much.  The stress is a non-linear variable dependent on the
-volume fraction of the carbon fibre in the material. As the fibres are
+volume fraction of the carbon fiber in the material. As the fibers are
 packed the stiffness will increase non-linearly. The the following
 formula shows a good agreement with experiments \citet{Gutowski1987},
 \ie it is a heuristic model
@@ -723,21 +731,21 @@ constant\note{reference for the expression of spring constant? In the
 fitted to experimental data and their values are specified in
 \tabref{tab:phys-const}.
 %
-The fibre volume fraction $\vzero$, and $\vmax$ represents the ratio
-between the total volume and the fibre volume at the initial, maximal
-packing respectively. The fibre volume fraction is expressed as
+The fiber volume fraction $\vzero$, and $\vmax$ represents the ratio
+between the total volume and the fiber volume at the initial, maximal
+packing respectively. The fiber volume fraction is expressed as
 \begin{align}
   \vfrac(x,t) = \frac{v_f(x,t)}{v_c(x,t)}
 \end{align}
 %
-where $v_c$ is the volume of the fibre in corresponding volume of
-composite $v_f$. As the fibre volume is assumed to remain constant,
+where $v_c$ is the volume of the fiber in corresponding volume of
+composite $v_f$. As the fiber volume is assumed to remain constant,
 which can be expressed as
 %
-\note{is this assmuption reasonable? What about the compression of the fibre?}
+\note{is this assmuption reasonable? What about the compression of the fiber?}
 %
 \begin{align}
-  v_f(x,t) = \vzero v_{c0}. \label{eq:fibre-fraction}
+  v_f(x,t) = \vzero v_{c0}. \label{eq:fiber-fraction}
 \end{align}
 where $\vzero = \vfrac(x,t_0)$ and $v_{c0} = v_c(x,t_0)$.
 %
@@ -751,26 +759,26 @@ which gives
 {v_{c0}}= \frac{v_c(x,t) }{\strain_V(x,t) + 1}. \label{eq:initial-volume}
 \end{align}
 
-Substituting \eqref{eq:initial-volume} into \eqref{eq:fibre-fraction}
+Substituting \eqref{eq:initial-volume} into \eqref{eq:fiber-fraction}
 and then into \eqref{eq:volumetric-strain} yields
 %
 \begin{align}
-  \vfrac(x,t) = \frac{\vzero}{1+\strain(x,t)}, \label{eq:fibre-volume}
+  \vfrac(x,t) = \frac{\vzero}{1+\strain(x,t)}, \label{eq:fiber-volume}
 \end{align}
 %
 where $\strain =  u_{,x}$.
 
-\figref{fig:consolidation} shows the change in the properties of the material during the consolidation. All panels shown for the region of the independent variable for which was the model designed. The panel (a) shows the dependency of the volume fraction on the strain as described by the \eqref{eq:fibre-volume}. As the strain decreases, \ie\ fibre bed is compressed, the fibres consolidate which means that the volume fraction of the fibres increase. The panel (b) shows the effective stress in the fibre bed during the consolidation as described by \eqref{eq:stress-nonlin}. In this panel we can observe that as the fibre volume fraction increases, the fibre bed becomes stiffer, which can be observed as higher stress. The last panel (c) shows the combination of the two previous panels (a,b) and can be interpreted as the increase of stiffness with the consolidation.
+\figref{fig:consolidation} shows the change in the properties of the material during the consolidation. All panels shown for the region of the independent variable for which was the model designed. The panel (a) shows the dependency of the volume fraction on the strain as described by the \eqref{eq:fiber-volume}. As the strain decreases, \ie\ fiber bed is compressed, the fibers consolidate which means that the volume fraction of the fibers increase. The panel (b) shows the effective stress in the fiber bed during the consolidation as described by \eqref{eq:stress-nonlin}. In this panel we can observe that as the fiber volume fraction increases, the fiber bed becomes stiffer, which can be observed as higher stress. The last panel (c) shows the combination of the two previous panels (a,b) and can be interpreted as the increase of stiffness with the consolidation.
 %
 \begin{figure}
   \centering
   \includegraphics{consolidation_fig.pdf}
-  \caption{Mechanical properties of the material during the consolidation of the carbon fibres. The combination of dependence of volume fraction on the strain as shown in panel (a), combined with the dependence of stress on volume fraction shown in panel (b), gives the dependence of the stress as a function of strain as shown in panel (c).}
+  \caption{Mechanical properties of the material during the consolidation of the carbon fibers. The combination of dependence of volume fraction on the strain as shown in panel (a), combined with the dependence of stress on volume fraction shown in panel (b), gives the dependence of the stress as a function of strain as shown in panel (c).}
   \label{fig:consolidation}
 \end{figure}
 
 In the Darcy's law in equation \eqref{eq:darcy} we assumed the ratio
-between fibre bed permeability and the viscosity of the resin
+between fiber bed permeability and the viscosity of the resin
 $\permeab/\viscos=1$. However, the permeability will depend on the volume
 fraction of the resin. \citet{Dave1987b} suggested a model as
 %
@@ -780,17 +788,17 @@ fraction of the resin. \citet{Dave1987b} suggested a model as
   \permeab = \frac{r_f^2}{4\kozeny} \frac{(1-\vfrac)^3}{\vfrac^2} \label{eq:permeability}
 \end{align}
 %
-where $r_f$ specifies the fibre radius and $\kozeny$ is so called Kozeny
+where $r_f$ specifies the fiber radius and $\kozeny$ is so called Kozeny
 constant (see \tabref{tab:phys-const}). Also, the viscosity is a
 function of other variables, such as temperature and the degree of
 cure of the resin.
 
-\figref{fig:permeab} shows the dependence of the permeability of the fibre bed during consolidation. Panel (a) shows the permeability as a function of  fibre volume fraction. When the fibre volume fraction is  high, the size of the pores between the material is higher, so the permeability is low. As the material is compressed and the fibre volume fraction reduces, the size of the pores reduces as well which results in the reduction of the permeability.
+\figref{fig:permeab} shows the dependence of the permeability of the fiber bed during consolidation. Panel (a) shows the permeability as a function of  fiber volume fraction. When the fiber volume fraction is  high, the size of the pores between the material is higher, so the permeability is low. As the material is compressed and the fiber volume fraction reduces, the size of the pores reduces as well which results in the reduction of the permeability.
 %
 \begin{figure}
   \centering
   \includegraphics{permeab_fig.pdf}
-  \caption{Permeability of the fibre bed during the consolidation.
+  \caption{Permeability of the fiber bed during the consolidation.
     The figure (a) The combination of dependence of volume fraction on
     the strain as shown in \figref{fig:consolidation}(a), combined
       with the dependence of the permeability on volume fraction shown
@@ -915,10 +923,10 @@ The dependency of the rate of cure on the degree of cure has a maximum at $\sim 
     \midrule
     Young's modulus               & $E_f$        & $230$         & GPa            \\ 
     data fitting constant         & $\beta$      & $350$         & (unitless)            \\
-    initial fibre volume fraction & $\vzero$        & $0.55$        & (unitless)     \\
-    maximum fibre volume fraction & $\vmax$        & $0.68$        & (unitless)     \\
+    initial fiber volume fraction & $\vzero$        & $0.55$        & (unitless)     \\
+    maximum fiber volume fraction & $\vmax$        & $0.68$        & (unitless)     \\
     \midrule
-    radius of fibre               & $r_f$        & $4\ee{-3}$    & mm             \\
+    radius of fiber               & $r_f$        & $4\ee{-3}$    & mm             \\
     Kozeny constant              & $\kozeny$          & $0.2$         & 1/s \QM            \\
     \midrule
     viscosity asymptote     & $\viscosinf$ & $3.45\ee{-10}$ & Pa$\cdot$s \QM \\ 
@@ -946,7 +954,7 @@ called autoclave. During this procedure a specific temperature
 protocol is followed.  The initial temperature $\temp_0 = 30$\degree C is
 increased during $30$ minutes up to the temperature of
 $\temp_f = 107.222$\degree C at which value it stays for another half an
-hour to allow the resin being expulsed from the fibre bed. After the
+hour to allow the resin being expelled from the fiber bed. After the
 first hour of the procedure ($t=3600$~s) the temperature undergoes a
 second increase for a duration of $30$ minutes up to the temperature
 of $176.66667$\degree C, at which value it stays for another half an
@@ -961,7 +969,7 @@ forward Euler method
 \end{align}
 %
 where $\cure_i \approx \cure(t_i)$ and $\cure(t_0)=\ee{-3}$. The
-time step size was choosen as $\dt = 60$~s.
+time step size was chosen as $\dt = 60$~s.
 %
 \figref{fig:cure-exp}(a) shows the time evolution of the cure of the
 resin during a simulation of autoclave temperature protocol, which is
@@ -978,7 +986,7 @@ results are used to calculate the viscosity using equation
 \eqref{eq:viscosity}. As the cure stays close to zero for the first
 $80$~minutes, the viscosity can be related to the temperature
 profile. After the first $30$~minutes, the resin is in a fluid state,
-which allows its flow out of the fibre bed. In the next increase of
+which allows its flow out of the fiber bed. In the next increase of
 temperature, the viscosity further reduces, but then shoots up, as the
 cure increases. The graph ends around the point, where the viscosity
 passes the gelation point $\curegel$ at which the resin becomes solid
@@ -1001,7 +1009,7 @@ and beyond which the viscosity model is no longer valid.
 
 Implementing the viscosity model into the model of the heat equation
 is rather straight forward, as the viscosity is constant throughout
-the sample and hence decoupled spatialy. 
+the sample and hence decoupled spatially. 
 %
 We use \eqref{eq:darcy} for a generic permeability and viscosity
 values and update \eqref{eq:velocity} as
@@ -1027,11 +1035,38 @@ requires using the formulas \eqref{eq:fin-diff} to get a numerical scheme as
 where viscosity $\viscos_i = \viscos(\temp(t_i),\cure_i)$ is obtained
 using expression \eqref{eq:viscosity} and the cure $\cure_i$ is
 approximated using equation \eqref{eq:cure-fe}. The permeability
-$K=3.56\ee{-6}$ which corresponds to the fibre volume fraction $\vfrac = 0.6$.
+$K=3.56\ee{-6}$ which corresponds to the fiber volume fraction $\vfrac = 0.6$.
 
 
 
-\subsection{Numerical Computation of Spatial Model}
+\subsection{Numerical Computation of Model with Carbon Bed Stiffening}
+
+Here we write down once more the definition of the problem which we
+are trying to solve. This contains the stiffening of the fiber bed as
+described in the previous sections. The changing viscosity of the
+resin is not considered here.
+
+We consider a situation of a one dimensional fiber bed consolidation
+as shown on \figref{fig:fiber-bed}. This is a simplification of a
+three dimensional problem which considers a cross-section of spatially
+extended stack of plies of carbon fibers in two dimensions. The
+considered dimension is $x$. The fiber bed floats in gravitation-free
+vacuum so that the pressure initial at initial time $t=0$ is
+$\press(x,0)=0$ and effective stress in the fiber bed
+$\efstress(x,0) = 0$. At the $t>0$ an atmospheric pressure
+$P(L,t) = -\pressatm$ (negative sign for compressing direction) is
+applied at the top boundary that is perfectly permeable. The bottom
+boundary at the reference coordinate $X=0$ is impermeable, which
+implies $\press_{,x}(0,t) =0$, and the displacement is fixed at
+$u(0,t) = 0$.
+
+\begin{figure}
+  \centering
+  \includegraphics{fiber_bed_diag.pdf}
+  \caption{Diagram of one dimensional fiber bed consolidation. \note{Perhaps move to the front}}
+  \label{fig:fiber-bed}
+\end{figure}
+
 
 
 Considering the case of static equilibrium $\stress_{,x}(x,t)=0$, and
@@ -1044,12 +1079,13 @@ the Young's modulus $\young = 1$ \note{TODO: use realistic $\young$} we can writ
 %
 where $u_{,t}$ is discretised as shown in \eqref{eq:fin-diff}. Then we
 derive the time integration as
+%
 \begin{align}
-  \disp{i}{j+1} = \disp{i}{j} + \dt \frac{\permeab(x_i)}{\viscos(t_j)}\efstr{i,x}{j} + \cO{\dt^2},
+  \disp{i}{j+1} = \disp{i}{j} + \dt \frac{\permeab_i}{\viscos^j}\efstr{i,x}{j} + \cO{\dt^2}, \label{eq:algorithm-spatial-internal}
 \end{align}
 %
-where $\disp{}{j+1} \approx u(x,t_j)$, the $\viscos(t_j)$ is given in
-\eqref{eq:viscosity} and pemeability $\permeab(x_i)$ in
+where $\disp{}{j+1} \approx u(x,t_j)$, the $\viscos^j = \viscos(t_j)$ is given in
+\eqref{eq:viscosity} and permeability $\permeab_i = \permeab(x_i)$ in
 \eqref{eq:permeability}.
 
 The space derivative of effective stress is found using finite
@@ -1057,50 +1093,104 @@ differences as
 %
 \begin{align}
   \label{eq:fin-diff-efstress}
-  \efstress_{i,x}^j  =& \frac{\efstr{i+1}{j} - \efstr{i}{j}}{\dx} + \bigO{\dx}.
+  \efstress_{i,x}^j  =& \frac{\efstr{i+\rfrac{1}{2}}{j} - \efstr{i-\rfrac{1}{2}}{j}}{\dx} + \bigO{\dx}.
 \end{align}
 %
-where the effective stiffness $\efstr{i}{j}$ is obtained using
-\eqref{eq:stress-nonlin}.
+where the effective stiffness $\efstr{i\pm\rfrac{1}{2}}{j}$ is
+obtained using \eqref{eq:stress-nonlin} through calculation of
+$\vfrac(x_{i\pm\rfrac{1}{2}},t_j)$ as given in
+\eqref{eq:fiber-volume}.  That requires to evaluate a strain
+$\strain(x_{i\pm\rfrac{1}{2}},t_j) = \disp{i\pm\rfrac{1}{2},x}{j}$
+which we find using the following finite difference scheme
+%
+\begin{subequations}
+  \begin{align}
+  \disp{i+\rfrac{1}{2},x}{j} =& \frac{\disp{i+1}{j} - \disp{i}{j}}{\dx} + \bigO{\dx},\label{eq:scheme-strain-internal}\\
+  \disp{i-\rfrac{1}{2},x}{j} =& \frac{\disp{i}{j} - \disp{i-1}{j}}{\dx} + \bigO{\dx}.
+\end{align}
+\end{subequations}
+%
+Similarly, the permeability $\permeab_i$ is found through the
+calculation of $\vfrac$ and strain
+$\strain(x_{i},t_j) = \disp{i,x}{j}$ as
+\begin{align}
+      \disp{i,x}{j} =& \frac{\disp{i+1}{j} - \disp{i-1}{j}}{2\dx} + \bigO{\dx}.
+\end{align}
 
-The effective stiffness and permeability at a point $x_i$ require the
-calculation of $\vfrac(x_i,t_j)$. This is found using strain found as
+
+Those are all required ingredients, which we need to compute the time
+evolution of the internal points of the material according to equation
+\eqref{eq:algorithm-spatial-internal}. A boundary points evolve
+differently. The bottom boundary is static, which implies that the
+displacement $\disp{0}{j+1} = \disp{0}{j} = 0$. The top boundary is
+free and moves under the applied pressure. The situation is more
+complicated at the top boundary.
+
+
+Since, the boundary is perfectly permeable, the fluid can freely move
+through it and hence has a zero pressure $\press = 0$. From the
+assumption of static equilibrium the applied stress
+$\stress = -\pressatm$ is constant throughout the material, even at
+the boundary, which implies
 %
 \begin{align}
- \strain(x_i,t_j) =&  \frac{\disp{i+1}{j} - \disp{i}{j}}{\dx} + \cO{\dx},
+  \efstress_{Nx}^{j} = -\pressatm. \label{eq:efstress-top}
 \end{align}
 %
-which is used for the calculation of the fibre volume fraction as
-given in \eqref{eq:fibre-volume}.
+So, the different finite difference scheme for the top boundary has to
+be defined differently from \eqref{eq:scheme-strain-internal}, because
+$\disp{i+1}{j}$ is not defined when $i=N_x$. Instead, we define the
+finite difference at the boundary as
+%
+\begin{align}
+\efstr{N_x,x}{j} = \frac{\efstr{N_x,x}{j} -\efstr{N_x-\rfrac{1}{2}}{j}}{\dx} + \cO{\dx} =  \frac{-\pressatm -\efstr{N_x-\rfrac{1}{2}}{j}}{\dx} + \cO{\dx}
+\end{align}
+%
+and the computation of $\strain(x_{N_x},t_j) = \disp{N_x}{j}$ then
+from \eqref{eq:efstress-top}.
 
-\subsection{Boundary Conditions}
+Therefore, according the relation \eqref{eq:flow-stress}
+we get
+%
 
-We consider a situation of a one dimensional fibre bed consolidation
-as shown on \figref{fig:fibre-bed}. This is a simplification of a
-three dimensional problem which considers a cross-section of spatialy
-extended stack of plies of carbon fibres in two dimensions. The
-considered dimension is $x$.
+\begin{align}
+ \disp{N_x}{j+1} = \disp{N_x}{j} + \dt \frac{\permeab_{N_x-\rfrac{1}{2}}}{\viscos^j}\efstr{N_x,x}{j} + \cO{\dt^2}. \label{eq:algorithm-spatial-top-boundary}
+\end{align}
+
+\figref{fig:consol}(a) shows the simulation results using the
+algorithm. The $\viscos^j = \viscos(\temp,\cure)$ at constant values
+of temperature $\temp=107.22$\degree C, and cure $\cure = 0$. The time
+step $\dt=1\ee{-4}$. The length of the material $L=0.01$~m and the
+space step $\dx=0.001$, hence, there are $10$ computed nodes. The
+panel (b) shows the map of the deformation (gray scale) as a function
+of the frame of reference and time for the time duration of
+$10.0$. The steady-state was achieved after time of $t=5.0$.
+
+Panel (c) shows the simulation results for the error
+analysis. The norm was computed using \eqref{eq:norm}, where $\hat{u}$
+corresponds to a computation with $N_x=200$, and $\dt=1\ee{-6}$. The
+order of approximation of the algorithm was found to be
+$\cO{\dx^{1.42}}$.
 
 \begin{figure}
   \centering
-  \includegraphics{fibre_bed.pdf}
-  \caption{Diagram of one dimensional fibre bed consolidation. \note{Perhaps move to the front}}
-  \label{fig:fibre-bed}
+  \includegraphics{consol_fig.pdf}
+  \caption[Simulations results of model including fiber bed
+  stiffening.]{Simulations results of model including fiber bed
+    stiffening. Panel (a) shows the displacement as a function of
+    frame of reference at time $t=0.00$ (magenta), $t=2.00$ (green),
+    $t=4.00$ (blue), and $t=7.00$ (yellow). Panel (b) shows The
+    displacement is in gray-scale as function of the frame of
+    reference $x$ (horizontal axis) and time $t$ (vertical axis). The
+    isolines represents areas of the map with the same values of
+    displacement as specified in the legend. Panel (c) shows the norm
+    of the error as a function of $\dx$.}
+  \label{fig:consol}
 \end{figure}
 
-The pressure is applied from the permeable free top boundary with the
-reference coordinate $X=L$, the bottom boundary with the coordinate
-$X=0$ is impermeable and fixed.  Mathematicaly this can be expressed
-as $u(0,t) = 0$, $\press_{,x}(0,t) =0$ for the bottom boundary and
-$\press_b = -\pressatm$ at the top boundary.
 
 
-
-
-
-\subsection{Error Estimation}
-
-To estimate the order of error we have to expand the formula \QM
+\subsection{Error and Stability}
 
 First, we write the formula for strain as a finite
 difference
@@ -1109,8 +1199,8 @@ difference
   u_{,x} =& \frac{\disp{i+1}{j} - \disp{i}{j}}{\dx} + \cO{\dx},
 \end{align}
 %
-which allows to find the fibre volume fraction using
-\eqref{eq:fibre-volume} as
+which allows to find the fiber volume fraction using
+\eqref{eq:fiber-volume} as
 %
 \begin{align}
   \vfrac(x_i,t_j) = \frac{\vzero}{1+\frac{\disp{i+1}{j} - \disp{i}{j}}{\dx} + \cO{\dx}}
@@ -1118,7 +1208,11 @@ which allows to find the fibre volume fraction using
   \label{eq:vfrac-findiff}.
 \end{align}
 %
-We substitute this result into \eqref{eq:stress-nonlin} and obtain
+Which gives an this approximation is of $\cO{\dx^{-2}}$.
+
+
+We substitute equation \eqref{eq:vfrac-findiff} into
+\eqref{eq:stress-nonlin} and obtain
 %
 \begin{align}
   &\efstr{i}{j} = \spring
@@ -1133,13 +1227,15 @@ We substitute this result into \eqref{eq:stress-nonlin} and obtain
     {\left(\frac{1}{\vzero} + \frac{\disp{i+1}{j} - \disp{i}{j}}{\vzero\dx} -\frac{1}{\vmax}  + \cO{\dx}\right)^4} + \cO{\dx} = \nonumber \\
     %%%%%%%%%%
   &= \spring {\frac{\disp{i+1}{j} - \disp{i}{j}}{\left(\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}\right){\left(\frac{1}{\vzero} + \frac{\disp{i+1}{j} - \disp{i}{j}}{\vzero\dx} -\frac{1}{\vmax}  + \cO{\dx}\right)^4}}}%
-    + \cO{\dx} =  \nonumber \\
-  &= \spring \frac{\disp{i+1}{j} - \disp{i}{j}}{\left(\dx + \disp{i+1}{j} - \disp{i}{j}\right){\left(\frac{1}{\vzero} + \frac{\disp{i+1}{j} - \disp{i}{j}}{\vzero\dx} -\frac{1}{\vmax}  + \cO{\dx}\right)^4} + \cO{\dx^2}}
-    + \cO{\dx}
+    + \cO{\dx} % =  \nonumber \\
+  % &= \spring \frac{\disp{i+1}{j} - \disp{i}{j}}{\left(\dx + \disp{i+1}{j} - \disp{i}{j}    + \cO{\dx^2}\right){\left(\frac{1}{\vzero} + \frac{\disp{i+1}{j} - \disp{i}{j}}{\vzero\dx} -\frac{1}{\vmax}  + \cO{\dx}\right)^4} }+ \cO{\dx}
      % =  \nonumber \\
-  , \label{eq:stress-nonlin-findif}
+  , \label{eq:stress-nonlin-findiff}
 \end{align}
 where $\efstr{i+1}{j} = \efstress(x_i,t_j)$.
+
+From the denominator of \eqref{eq:stress-nonlin-findiff} we find that
+the approximation is of $\cO{\dx^{-8}}$. 
 
 That can be used to find $\efstress_{,x}$ as
 %
@@ -1168,8 +1264,6 @@ $\permeab(\vfrac(x))$ from \eqref{eq:permeability}  and \eqref{eq:vfrac-findiff}
   &  =\frac{r_f^2}{4\left(\vzero{\dx}\right)^2\kozeny} {\frac{\left({\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}}-\vzero{\dx}\right)^3}{{\dx + \disp{i+1}{j} - \disp{i}{j} + \cO{\dx^2}}}}.
 \end{align}
 
-
-
 % \subsection{TODO}
 
 % Here we describe the implementation of the models including the
@@ -1177,8 +1271,8 @@ $\permeab(\vfrac(x))$ from \eqref{eq:permeability}  and \eqref{eq:vfrac-findiff}
 % done in several steps as follows
 % %
 % \begin{enumerate}
-% \item constant fibre volume fraction of $\vfrac = 0.6$, temperature $\temp=\QM$, and degree of cure $\cure$; this gives a linear model with appropriate physical units, \label{en:all-const}
-% \item fibre volume fraction dependent on the deformation according to formula \eqref{eq:fibre-volume}, the remaining variables as in previous case,
+% \item constant fiber volume fraction of $\vfrac = 0.6$, temperature $\temp=\QM$, and degree of cure $\cure$; this gives a linear model with appropriate physical units, \label{en:all-const}
+% \item fiber volume fraction dependent on the deformation according to formula \eqref{eq:fiber-volume}, the remaining variables as in previous case,
 % \item ramped temperature $\temp_{,t} = q$ which leads to variable degree of cure $\cure$.
 % \end{enumerate}
 

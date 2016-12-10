@@ -13,7 +13,7 @@ FIG = consolidation\
 	error\
 	consol
 
-FIGURES = $(foreach f, $(FIG), $f_fig.pdf) fibre_bed_diag.pdf
+FIGURES = $(foreach f, $(FIG), $f_fig.pdf) fiber_bed_diag.pdf
 
 DATCONDX = $(foreach n, 200 170 130 100 70 30 10, consol-t_1e-6_-n_$n.dat)
 
