@@ -81,15 +81,13 @@ norm_dx_consol.dat: | $(DATCONDX)
 		done| awk "NR>1{print log(\$$1),log(\$$2)}"' > $@
 
 # simulation results for the "realistic simulations"
-# $(foreach n, 10 70 100, consol-t_1e-4_-n_$n.dat)
-CONSOL = $(foreach n, 10 70, consol-t_1e-4_-n_$n.dat)
-
 consol%.eps: consol%.dat common.plt consol_tX_map.plt
 	echo 'datafile="$<"' | cat - $(lastword $+) | gnuplot > $@
 
 #  prerequisites for the EPS figure pannels
 cure-temp-cure.eps cure-temp-viscos.eps: cure.dat
 deform_frameX.eps: trans_findiff.awk.dat
+deform_frameX_consol.eps: trans_consol-t_1e-4.awk.dat
 deform_tX_map.eps deform_time.eps: findiff.dat
 norm_dx.eps: norm_dx.dat
 norm_dt.eps: norm_dt.dat
@@ -108,7 +106,7 @@ error_fig.tex: stability.eps norm_dt.eps norm_dx.eps
 heat_fig.tex: deform_time.eps deform_frameX.eps deform_tX_map.eps
 permeab_fig.tex: permeab-vf.eps permeab-strain.eps 
 viscosity_fig.tex: viscosity-temp.eps viscosity-cure.eps viscosity-map.eps
-consol_fig.tex: $(CONSOL:.dat=.eps) norm_dx_consol.eps
+consol_fig.tex: deform_frameX_consol.eps consol-t_1e-4.eps norm_dx_consol.eps
 
 # TODO: the _fig.tex are not removed -- why?
 %_fig.tex: | tablemacro.pl figure_template.text
